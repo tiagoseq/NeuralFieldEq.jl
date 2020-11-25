@@ -5,6 +5,7 @@ function solveSNFE(prob,saveat=[prob.Ω.t[2], prob.Ω.t[end÷2], prob.Ω.t[end]]
     t  = prob.Ω.t
     x  = prob.Ω.x
     y  = prob.Ω.y
+    dt = prob.Ω.dt
 
     hN = (N÷2)+1 # Half of dim N (due to the output of rfft)
     
@@ -18,15 +19,15 @@ function solveSNFE(prob,saveat=[prob.Ω.t[2], prob.Ω.t[end÷2], prob.Ω.t[end]]
 
         # Pre-allocate matrices
         V   = Array{Float64,2}(undef,N,N)
-        dv  = similar(V)
+        dV  = similar(V)
         L   = similar(V)
-        fS  = Array{Complex{Float64},2}(undef,prob.rings*hN,N) # Firing Rate in Fourier space
-        fSi = Array{Complex{Float64},2}(undef,hN,N) # Firing Rate in Fourier space
-        fL  = similar(fSi) # kernel by firing rate product in Fourier space
+        s  = Array{Complex{Float64},2}(undef,prob.rings*hN,N) # Firing Rate in Fourier space
+        si = Array{Complex{Float64},2}(undef,hN,N) # Firing Rate in Fourier space
+        l  = similar(si) # kernel by firing rate product in Fourier space
         # Pre-allocate I (?)
 
         copy!(V,prob.V0) # Initial condition V(X,0) = V0
-        copy!(fS,prob.S)  # Initialise with the initial values of S
+        copy!(s,prob.S)  # Initialise with the initial values of S
 
         # Time loop
         @inbounds for i = 0:length(t)-1
@@ -37,27 +38,27 @@ function solveSNFE(prob,saveat=[prob.Ω.t[2], prob.Ω.t[end÷2], prob.Ω.t[end]]
             # Store solution V in t[j] instant
             if t[i+1] in saveat
                 j += 1
-                Vtj[(j-1)*N+1:N*j,:,p] = V
+                Vtj[(j-1)*N+1:N*j,:,p] .= V
             end
 
-            fL = prob.Krings[1:hN,:].*fS[1:hN,:]
+            @. l = prob.Krings[1:hN,:]*s[1:hN,:]
             @inbounds for j = 2:prob.rings
-                fL += prob.Krings[1+hN*(j-1):hN*j,:].*fS[1+hN*(j-1):hN*j,:]
+                @. l += prob.Krings[1+hN*(j-1):hN*j,:]*s[1+hN*(j-1):hN*j,:]
             end
 
             # Apply the Inverse Real Fourier Transform
-            ldiv!(L,P,fL)
+            ldiv!(L,P,l)
 
             # Compute dV - explain what is dV
-            dV = (prob.Ω.dt/prob.α)*(-V+L+I) + sqrt(prob.Ω.dt)*prob.ϵ*prob.λ.*w
+            @. dV = (dt/prob.α)*(-V+L+I) + sqrt(dt)*prob.ϵ*prob.λ*w
 
-            V += dV # Update V
+            @. V += dV # Update V
 
             # Update S
-            fS[hN+1:end,:] = fS[1:hN*(prob.rings-1),:]
+            s[hN+1:end,:] .= s[1:hN*(prob.rings-1),:]
             
-            mul!(fSi,P,prob.firingRate(V))
-            fS[1:hN,:] .= fSi
+            mul!(si,P,prob.firingRate(V))
+            s[1:hN,:] .= si
 
         end #end time loop
 
