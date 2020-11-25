@@ -1,4 +1,5 @@
 struct ProbOutput
+    P::FFTW.rFFTWPlan{Float64,-1,false,2,UnitRange{Int64}}
     Krings::Array{Complex{Float64},2}
     rings::Int64
     I::Function

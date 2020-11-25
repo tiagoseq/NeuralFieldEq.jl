@@ -1,8 +1,8 @@
 module SNFE
 
-using FFTW, Distributions
+using FFTW, Distributions, Statistics, LinearAlgebra
 
-# Include module containing several auxiliary functions
+# Module containing several auxiliary functions
 include("Peel.jl")
 using .Peel
 
