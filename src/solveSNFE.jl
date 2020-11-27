@@ -9,22 +9,21 @@ function solveSNFE(prob,saveat=[prob.Ω.t[2], prob.Ω.t[end÷2], prob.Ω.t[end]]
 
     hN = (N÷2)+1 # Half of dim N (due to the output of rfft)
     
-    # Pre-allocate the solution matrices
+    # Pre-allocate matrices
     Vtj = Array{Float64,3}(undef,N*length(saveat),N,np)
-    meanVtj = Array{Float64,2}(undef,N*length(saveat),N)
+    meanVtj = Matrix{Float64}(undef,N*length(saveat),N)
+
+    V   = Array{Float64,2}(undef,N,N)
+    dV  = similar(V)
+    L   = similar(V)
+    I   = similar(V)
+    s   = Matrix{Complex{Float64}}(undef,prob.rings*hN,N) # Firing Rate in Fourier space
+    si  = Matrix{Complex{Float64}}(undef,hN,N) # Firing Rate in Fourier space
+    l   = similar(si) # kernel by firing rate product in Fourier space
     
     # Trajectories loop
     @inbounds for p = 1:np
         j = 0 # Index for tj
-
-        # Pre-allocate matrices
-        V   = Array{Float64,2}(undef,N,N)
-        dV  = similar(V)
-        L   = similar(V)
-        s  = Array{Complex{Float64},2}(undef,prob.rings*hN,N) # Firing Rate in Fourier space
-        si = Array{Complex{Float64},2}(undef,hN,N) # Firing Rate in Fourier space
-        l  = similar(si) # kernel by firing rate product in Fourier space
-        # Pre-allocate I (?)
 
         copy!(V,prob.V0) # Initial condition V(X,0) = V0
         copy!(s,prob.S)  # Initialise with the initial values of S

@@ -4,13 +4,13 @@ struct Domain{T<:Real,P<:Real}
     N::T
     dx::Float64
     dy::Float64
-    x::Array{Float64,1}
-    y::Array{Float64,1}
+    x::Vector{Float64}
+    y::Vector{Float64}
     # Time parameters
     tspan::P
     n::T
     dt::Float64
-    t::Array{Float64,1}
+    t::Vector{Float64}
 
     # constructor
     function Domain{T,P}(L::T,N::T,tspan::P,n::T) where {T<:Real,P<:Real}

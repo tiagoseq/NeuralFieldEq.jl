@@ -3,8 +3,8 @@ module SNFE
 using FFTW, Distributions, Statistics, LinearAlgebra
 
 # Module containing several auxiliary functions
-include("Peel.jl")
-using .Peel
+include("AuxFunctions.jl")
+using .AuxFunctions
 
 export probSNFE, solveSNFE
 

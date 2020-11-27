@@ -1,15 +1,15 @@
-struct ProbOutput
+struct ProbOutput{T<:AbstractFloat,P<:Int}
     P::FFTW.rFFTWPlan{Float64,-1,false,2,UnitRange{Int64}}
-    Krings::Array{Complex{Float64},2}
-    rings::Int64
+    Krings::Matrix{Complex{Float64}}
+    rings::P
     I::Function
-    S::Array{Complex{Float64},2}
+    S::Matrix{Complex{Float64}}
     firingRate::Function # The firing rate function
     Ω::Domain
-    λ::Array{Float64,2}
-    α::Float64
-    ϵ::Float64
-    np::Int64
-    Vthresh::Float64
-    V0::Array{Float64,2}
+    λ::Matrix{Float64}
+    α::T
+    ϵ::T
+    np::P
+    Vthresh::T
+    V0::Matrix{Float64}
 end

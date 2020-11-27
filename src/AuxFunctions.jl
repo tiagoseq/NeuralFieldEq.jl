@@ -1,4 +1,4 @@
-module Peel
+module AuxFunctions
 
 using LinearAlgebra: ldiv!, mul!
 export peel
@@ -9,11 +9,10 @@ function disc(N,centre,radius)
     # 0 1 0 1 0
     # 0 0 1 0 0
 
-    D = Array{Float64,2}(undef,N,N)
+    D = Matrix{Float64}(undef,N,N)
     @inbounds D = [sqrt((i-centre[1])^2+(j-centre[2])^2)<=radius ? D[i,j] = 1.0 : D[i,j] = 0.0 for i = 1:N, j = 1:N]
 
     return D
-
 end
 
 function peel(P,Z,centre,r,N)
@@ -24,8 +23,8 @@ function peel(P,Z,centre,r,N)
     rings = 1+floor(Int64, R/r) # Number of delay rings
     hN    = N÷2+1 # Half of dim N (due to the output of rfft)
 
-    L  = Array{Complex{Float64},2}(undef,hN*rings,N)
-    Li = Array{Complex{Float64},2}(undef,hN,N)
+    L  = Matrix{Complex{Float64}}(undef,hN*rings,N)
+    Li = Matrix{Complex{Float64}}(undef,hN,N)
     @inbounds for i = 1:rings
         r1 = (i-1)*r
         r2 = i*r
