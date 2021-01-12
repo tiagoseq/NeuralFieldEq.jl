@@ -1,4 +1,4 @@
-struct Domain{T<:Real,P<:Real}
+struct Domain{T<:Real,P<:Real} <: TwoDim
     # Space parameters
     L::T
     N::T

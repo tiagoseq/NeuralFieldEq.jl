@@ -2,20 +2,23 @@ module SNFE
 
 using FFTW, Distributions, Statistics, LinearAlgebra
 
-# Module containing several auxiliary functions
+# Module containing auxiliary functions
 include("AuxFunctions.jl")
 using .AuxFunctions
 
 export probSNFE, solveSNFE
+export Input1D, Input2D # Input structures
 
-# Include data structures
-include("DiscretiseDomain.jl")
-include("ProbOutput.jl")
-include("SolOutput.jl")
+# Define the structures types for probSNFE and solveSNFE
+include("SNFEStruct.jl")
+#include("DiscretiseDomain.jl")
+#include("ProbStruct.jl")
+#include("SolveOutput.jl")
 
-# Include solver functions
+# Interface functions
 include("probSNFE.jl")
-include("solveSNFE.jl")
+include("solveSNFE1D.jl")
+include("solveSNFE2D.jl")
 
 
 end
