@@ -1,50 +1,47 @@
 ### ### ### ### 1D problem:
 # Deterministic 1D case
-struct SolveOutDet1D{T<:Vector{Float64}} <: OneDim
+struct SolveOutDet1D{T<:Vector{<:AbstractFloat},P<:Signed} <: OneDim
     V::T
     x::T
-    y::T
     t::T
     tsaved::T
+    N::P
 end
 
 # Stochastic 1D case
-struct SolveOutSto1D{P<:Matrix{Float64},T<:Vector{Float64}} <: OneDim
+struct SolveOutSto1D{T<:Vector{<:AbstractFloat},P<:Matrix{<:AbstractFloat},O<:Signed} <: OneDim
     V::P
     meanV::T
     x::T
-    y::T
     t::T
     tsaved::T
+    N::O
 end
 
 # Make struct Det 1D case as a callable function (2 methods)
-function (a::SolveOutDet1D)(ti::AbstractFloat) #ISTO NÃO ESTÁ BEM. não é t-1 mas sim t[i-1]!
-    t = findall(x->x==ti,a.tsaved)
-    N = size(a.V)[2]
-    return a.V[(t-1)*N+1:N*t,:]
+function (a::SolveOutDet1D)(ti::AbstractFloat)
+    t = findlast(x->x==ti,a.tsaved)
+    return a.V[(t-1)*a.N+1:a.N*t]
 end
-(a::SolveOutDet1D)(ti::Int,p::Int) = a.V[(ti-1)*size(a.V)[2]+1:size(a.V)[2]*ti,:]
+(a::SolveOutDet1D)(ti::Signed) = a.V[(ti-1)*a.N+1:a.N*ti]
 
 # Make struct Sto 1D case as a callable function (4 methods)
-function (a::SolveOutSto1D)(ti::AbstractFloat,p::Int) #ISTO NÃO ESTÁ BEM. não é t-1 mas sim t[i-1]!
-    t = findall(x->x==ti,a.tsaved)
-    N = size(a.V)[2]
-    return a.V[(t-1)*N+1:N*t,:,p]
+function (a::SolveOutSto1D)(ti::AbstractFloat,p::Int)
+    t = findlast(x->x==ti,a.tsaved)
+    return a.V[(t-1)*a.N+1:a.N*t,p]
 end
-(a::SolveOutSto1D)(ti::Int,p::Int) = a.V[(ti-1)*size(a.V)[2]+1:size(a.V)[2]*ti,:,p]
+(a::SolveOutSto1D)(ti::Int,p::Int) = a.V[(ti-1)*a.N+1:a.N*ti,p]
 
-function (b::SolveOutSto1D)(ti::AbstractFloat) #ISTO NÃO ESTÁ BEM. não é t-1 mas sim t[i-1]!
-    t = findall(x->x==ti,b.tsaved)
-    N = size(b.meanV)[2]
-    return b.meanV[(t-1)*N+1:N*t,:]
+function (b::SolveOutSto1D)(ti::AbstractFloat)
+    t = findlast(x->x==ti,b.tsaved)
+    return b.meanV[(t-1)*b.N+1:b.N*t]
 end
-(b::SolveOutSto1D)(ti::Int64) = b.meanV[(ti-1)*size(b.meanV)[2]+1:size(b.meanV)[2]*ti,:]
+(b::SolveOutSto1D)(ti::Int64) = b.meanV[(ti-1)*b.N+1:b.N*ti]
 
 
 ### ### ### ### 2D problem:
 # Deterministic 2D case
-struct SolveOutDet2D{P<:Matrix{Float64},T<:Vector{Float64}} <: TwoDim
+struct SolveOutDet2D{P<:Matrix{<:AbstractFloat},T<:Vector{<:AbstractFloat}} <: TwoDim
     V::P
     x::T
     y::T
@@ -53,7 +50,7 @@ struct SolveOutDet2D{P<:Matrix{Float64},T<:Vector{Float64}} <: TwoDim
 end
 
 # Stochastic 2D case
-struct SolveOutSto2D{M<:Array{Float64,3},P<:Matrix{Float64},T<:Vector{Float64}} <: TwoDim
+struct SolveOutSto2D{M<:Array{<:AbstractFloat,3},P<:Matrix{<:AbstractFloat},T<:Vector{<:AbstractFloat}} <: TwoDim
     V::M
     meanV::P
     x::T
@@ -63,24 +60,21 @@ struct SolveOutSto2D{M<:Array{Float64,3},P<:Matrix{Float64},T<:Vector{Float64}} 
 end
 
 # Make struct Det 2D case as a callable function (2 methods)
-function (a::SolveOutDet2D)(ti::AbstractFloat) #ISTO NÃO ESTÁ BEM. não é t-1 mas sim t[i-1]!
-    t = findall(x->x==ti,a.tsaved)
-    N = size(a.V)[2]
-    return a.V[(t-1)*N+1:N*t,:]
+function (a::SolveOutDet2D)(ti::AbstractFloat)
+    t = findlast(x->x==ti,a.tsaved)
+    return a.V[(t-1)*a.N+1:a.N*t,:]
 end
-(a::SolveOutDet2D)(ti::Int) = a.V[(ti-1)*size(a.V)[2]+1:size(a.V)[2]*ti,:]
+(a::SolveOutDet2D)(ti::Signed) = a.V[(ti-1)*a.N+1:a.N*ti,:]
 
 # Make struct Sto 2D case as a callable function (4 methods)
-function (a::SolveOutSto2D)(ti::AbstractFloat,p::Int) #ISTO NÃO ESTÁ BEM. não é t-1 mas sim t[i-1]!
-    t = findall(x->x==ti,a.tsaved)
-    N = size(a.V)[2]
-    return a.V[(t-1)*N+1:N*t,:,p]
+function (a::SolveOutSto2D)(ti::AbstractFloat,p::Int)
+    t = findlast(x->x==ti,a.tsaved)
+    return a.V[(t-1)*a.N+1:a.N*t,:,p]
 end
-(a::SolveOutSto2D)(ti::Int,p::Int) = a.V[(ti-1)*size(a.V)[2]+1:size(a.V)[2]*ti,:,p]
+(a::SolveOutSto2D)(ti::Int,p::Int) = a.V[(ti-1)*a.N+1:a.N*ti,:,p]
 
-function (b::SolveOutSto2D)(ti::AbstractFloat) #ISTO NÃO ESTÁ BEM. não é t-1 mas sim t[i-1]!
-    t = findall(x->x==ti,b.tsaved)
-    N = size(b.meanV)[2]
-    return b.meanV[(t-1)*N+1:N*t,:]
+function (b::SolveOutSto2D)(ti::AbstractFloat)
+    t = findlast(x->x==ti,b.tsaved)
+    return b.meanV[(t-1)*b.N+1:b.N*t,:]
 end
-(b::SolveOutSto2D)(ti::Int64) = b.meanV[(ti-1)*size(b.meanV)[2]+1:size(b.meanV)[2]*ti,:]
+(b::SolveOutSto2D)(ti::Int64) = a.meanV[(ti-1)*b.N+1:b.N*ti,:]

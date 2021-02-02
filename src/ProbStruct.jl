@@ -1,8 +1,8 @@
 # Structures for the probSNFE input
-struct Input1D{T<:AbstractFloat,P<:Signed,fI,fK,fS} <: OneDim
+struct Input1D{T<:Real,P<:Signed,fI,fK,fS} <: OneDim
     α::T
     v::T
-    V0::T
+    V0
     L::P
     N::P
     T::T
@@ -12,10 +12,10 @@ struct Input1D{T<:AbstractFloat,P<:Signed,fI,fK,fS} <: OneDim
     firingRate::fS
 end
 
-struct Input2D{T<:AbstractFloat,P<:Signed,fI,fK,fS} <: TwoDim
+struct Input2D{T<:Real,P<:Signed,fI,fK,fS} <: TwoDim
     α::T
     v::T
-    V0::T
+    V0
     L::P
     N::P
     T::T
@@ -27,22 +27,24 @@ end
 
 
 # Structures for the probSNFE output
-struct ProbOutput1D{P<:Signed} <: OneDim
-    P::FFTW.rFFTWPlan{Float64,-1,false,1,UnitRange{Int64}}
-    Krings::Matrix{Complex{Float64}}
-    rings::P
-    s::Vector{Complex{Float64}}
-    V0::Vector{Float64}
-    Ω::Domain
-    in::Input1D
+struct ProbOutput1D{T<:AbstractFloat,P<:Vector{<:Complex},A<:Domain,fI,fS} <: OneDim
+    Plan::FFTW.rFFTWPlan{Float64,-1,false,1,UnitRange{Int64}}
+    Krings::P
+    v0::P
+    s::P
+    Ω::A
+    α::T
+    I::fI
+    S::fS
 end
 
-struct ProbOutput2D{P<:Signed} <: TwoDim
-    P::FFTW.rFFTWPlan{Float64,-1,false,2,UnitRange{Int64}}
-    Krings::Matrix{Complex{Float64}}
-    rings::P
-    s::Matrix{Complex{Float64}}
-    V0::Matrix{Float64}
-    Ω::Domain
-    in::Input2D
+struct ProbOutput2D{T<:AbstractFloat,P<:Matrix{<:Complex},A<:Domain,fI,fS} <: TwoDim
+    Plan::FFTW.rFFTWPlan{Float64,-1,false,2,UnitRange{Int64}}
+    Krings::P
+    v0::P
+    s::P
+    Ω::A
+    α::T
+    I::fI
+    S::fS
 end
