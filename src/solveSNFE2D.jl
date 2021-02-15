@@ -1,6 +1,7 @@
 # Deterministic method for 2D
 function solveSNFE(prob::ProbOutput2D,saveat)
     P      = prob.Plan
+    Pinv   = prob.PlanInv
     rings  = prob.Ω.rings
     Krings = prob.Krings
     t      = prob.Ω.t
@@ -18,8 +19,8 @@ function solveSNFE(prob::ProbOutput2D,saveat)
     V  = Matrix{Float64}(undef,N,N)
     su = Matrix{ComplexF64}(undef,hN,N) # Fourier coefficients of the Firing Rate at delay u
     I  = similar(V)
-    a  = similar(su) # Fourier coefficients of the integral operator A(X,t)
     î  = similar(su) # Fourier coefficients of the external input
+    a  = zeros(ComplexF64,hN,N) # Fourier coefficients of the integral operator A(X,t)
     
     j = 1 # Index for saveat
     @inbounds for i = 1:length(t) # Time loop
@@ -34,16 +35,15 @@ function solveSNFE(prob::ProbOutput2D,saveat)
         mul!(î,P,ifftshift(I))
         î .= fftshift(î)
 
-        
-        @. a = @views Krings[1:hN,:]*s[1:hN,:]
-        @inbounds for u = 2:rings
+        # Compute the integral operator's fourier coef at t_i
+        @inbounds for u = 1:rings
             @. a += @views Krings[1+hN*(u-1):hN*u,:]*s[1+hN*(u-1):hN*u,:]
         end
         
         # Euler explicit scheme: V_i+1 = V_i + (Δt/α)*(I_i - V_i + A_i)
         @. v = v + (dt/α)*(î - v + a)
 
-        ldiv!(V,P,ifftshift(v))
+        mul!(V,Pinv,ifftshift(v))
         V .= fftshift(V) # Perform inverse Fourier transform to compute V in natural domain
 
         s[hN+1:end,:].= @view s[1:hN*(rings-1),:] # Update last delay ring
@@ -53,7 +53,7 @@ function solveSNFE(prob::ProbOutput2D,saveat)
     end #end time loop
 
     # Build our solution structure output
-    sol = SolveOutDet2D(Vj,prob.Ω.x,prob.Ω.y,prob.Ω.t,saveat)
+    sol = SolveOutDet2D(Vj,prob.Ω.x,prob.Ω.y,prob.Ω.t,saveat,N)
 
     println("Solution saved at time instants: $(saveat)")
     
@@ -64,6 +64,7 @@ end
 # Stochastic method for 2D
 function solveSNFE(prob::ProbOutput2D,saveat,ϵ,np,ξ=0.1)
     P      = prob.Plan
+    Pinv   = prob.PlanInv
     rings  = prob.Ω.rings
     Krings = prob.Krings
     t      = prob.Ω.t
@@ -82,13 +83,13 @@ function solveSNFE(prob::ProbOutput2D,saveat,ϵ,np,ξ=0.1)
     V  = Matrix{Float64}(undef,N,N)
     su = Matrix{ComplexF64}(undef,hN,N) # Fourier coefficients of the Firing Rate at delay u
     I  = similar(V)
-    a  = similar(su) # Fourier coefficients of the integral operator A(X,t)
     î  = similar(su) # Fourier coefficients of the external input
+    a  = zeros(ComplexF64,hN,N) # Fourier coefficients of the integral operator A(X,t)
     λ  = [exp(-((i^2+j^2)*ξ^2)/(8*pi)) for j in y, i in x] # Correlation matrix
     
     # Trajectories loop
     @inbounds for p = 1:np
-        copy!(v,prob.v0) # Initial condition V(X,0) = V0
+        copy!(v,prob.v0) # Initial condition v(X,0) = v0
         copy!(s,prob.s)  # Initialise with the initial values of S
 
         j = 1 # Index for tj
@@ -105,15 +106,15 @@ function solveSNFE(prob::ProbOutput2D,saveat,ϵ,np,ξ=0.1)
             mul!(î,P,ifftshift(I))
             î .= fftshift(î)
 
-            @. a = @views Krings[1:hN,:]*s[1:hN,:]
-            @inbounds for u = 2:rings
+            # Compute the integral operator's fourier coef at t_i
+            @inbounds for u = 1:rings
                 @. a += @views Krings[1+hN*(u-1):hN*u,:]*s[1+hN*(u-1):hN*u,:]
             end
 
             # Euler explicit scheme: V_i+1 = V_i + (Δt/α)*(I_i - V_i + A_i) + √(Δt)*ϵ*λ*w
             @. v = v + (dt/α)*(î - v + a) + sqrt(dt)*ϵ*λ*w
 
-            ldiv!(V,P,ifftshift(v))
+            mul!(V,Pinv,ifftshift(v))
             V .= fftshift(V) # Perform inverse Fourier transform to compute V in natural domain
 
             s[hN+1:end,:] .= @view s[1:hN*(rings-1),:] # Update last delay ring
@@ -132,7 +133,7 @@ function solveSNFE(prob::ProbOutput2D,saveat,ϵ,np,ξ=0.1)
     end
 
     # Build our solution structure output
-    sol = SolveOutSto2D(Vj,meanVj,prob.Ω.x,prob.Ω.y,prob.Ω.t,saveat)
+    sol = SolveOutSto2D(Vj,meanVj,prob.Ω.x,prob.Ω.y,prob.Ω.t,saveat,N)
 
     println("Solution saved at time instants: $(saveat)")
     

@@ -9,7 +9,6 @@ function disc(centre::T,N::T,radius::P) where {T<:Signed,P<:AbstractFloat} # 1D 
     # 0 0 1 0 0 -> 0 1 0 1 0 - > 1 0 0 0 1
     D = Vector{P}(undef,N)
     @inbounds D = [sqrt((i-centre)^2)<=radius ? D[i] = 1.0 : D[i] = 0.0 for i = 1:N]
-
     return D
 end
 
@@ -20,13 +19,12 @@ function disc(centre::Vector{T},N::T,radius::P) where {T<:Signed,P<:AbstractFloa
     # 0 0 1 0 0
     D = Matrix{P}(undef,N,N)
     @inbounds D = [sqrt((i-centre[1])^2+(j-centre[2])^2)<=radius ? D[i,j] = 1.0 : D[i,j] = 0.0 for i = 1:N, j = 1:N]
-
     return D
 end
 
 
 function peel(P,A::Vector{T},Ω) where {T<:AbstractFloat} # 1D method
-    hN = Ω.N÷2+1 # Half of dim N (due to the output of rfft)
+    hN = Ω.N÷2+1 # Half of dim N
     B  = Vector{ComplexF64}(undef,Ω.rings*hN)
     Bi = Vector{ComplexF64}(undef,hN)
 
@@ -43,7 +41,7 @@ function peel(P,A::Vector{T},Ω) where {T<:AbstractFloat} # 1D method
 end
 
 function peel(P,A::Matrix{T},Ω) where {T<:AbstractFloat} # 2D method
-    hN = Ω.N÷2+1
+    hN = Ω.N÷2+1 # Half of dim N
     B  = Matrix{ComplexF64}(undef,hN*Ω.rings,Ω.N)
     Bi = Matrix{ComplexF64}(undef,hN,Ω.N)
 

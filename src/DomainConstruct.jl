@@ -32,7 +32,7 @@ struct Domain{T<:Real,P<:AbstractFloat,O<:Signed} <: TwoDim
         # Delay computations
         τ_max = L/(sqrt(2)*v)           # Maximum delay
         Δr    = max(1.0,(v*dt)/dx)      # Compute rings width
-        rings = 1+floor(Int64,τ_max/dt) # Number of delay rings
+        rings = 1+floor(Int64,τ_max/dt) # Number of delay rings (u_max)
         
         new(L,N,dx,dy,x,y,tspan,n,dt,t,v,Δr,rings)
     end

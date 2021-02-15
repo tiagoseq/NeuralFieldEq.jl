@@ -4,10 +4,10 @@ function probSNFE(in::Input1D)
 
     Ω = Domain{typeof(in.L),typeof(in.T),typeof(N)}(in.L,N,in.T,in.n,in.v)
 
-    # Returns our real FFT operator for vector of dim N
-    P = plan_rfft(zeros(N))
+    P    = plan_rfft(zeros(N)) # Real IFFT operator for vector of dim N
+    Pinv = plan_irfft(zeros(ComplexF64,hN),N,flags=FFTW.MEASURE) # Real IFFT operator for hN vectors
     # Apply rfft:  Â = P * A (==mul!(Â,P,A)). Dim of Â is N÷2+1
-    # Apply irfft: A = P \ Â (==ldiv!(A,P,Â))
+    # Apply irfft: A = Pinv * Â (==mul!(A,P,Â))
 
     @inbounds K = [in.kernel(i) for i in Ω.x] # Initialise K matrix
     mul!(K,Ω.dx,K)       # Multiply by the step size due to the discretisation of the integral operator
@@ -37,9 +37,10 @@ function probSNFE(in::Input2D)
 
     Ω = Domain{typeof(in.L),typeof(in.T),typeof(N)}(in.L,N,in.T,in.n,in.v)
 
-    P = plan_rfft(zeros(N,N),flags=FFTW.MEASURE) # Returns our real FFT operator for NxN matrices
+    P    = plan_rfft(zeros(N,N),flags=FFTW.MEASURE) # Real FFT operator for NxN matrices
+    Pinv = plan_irfft(zeros(ComplexF64,hN,N),N,flags=FFTW.MEASURE) # Real IFFT operator for hNxN matrices
     # Apply rfft:  Â = P * A (==mul!(Â,P,A)). Dim of Â is ((N÷2+1) × N)
-    # Apply irfft: A = P \ Â (==ldiv!(A,P,Â))
+    # Apply irfft: A = Pinv * Â (==mul!(A,P,Â))
 
     @inbounds K = [in.kernel(i,j) for j in Ω.y, i in Ω.x] # Initialise K matrix
     mul!(K,Ω.dx*Ω.dy,K)  # Multiply by the step size due to the discretisation of the integral operator
@@ -51,7 +52,7 @@ function probSNFE(in::Input2D)
     v0 = Matrix{ComplexF64}(undef,hN,N)
     init!(v0,s,P,in.firingRate,in.V0,Ω) # Initialise v0 and s in the Fourier domain
 
-    prob = ProbOutput2D(P,Krings,v0,s,Ω,in.α,in.extInput,in.firingRate)
+    prob = ProbOutput2D(P,Pinv,Krings,v0,s,Ω,in.α,in.extInput,in.firingRate)
 
     # Print useful values:
     println("Spatial step: dx = dy = $(Ω.dx)")

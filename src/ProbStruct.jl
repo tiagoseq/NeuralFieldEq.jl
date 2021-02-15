@@ -40,6 +40,7 @@ end
 
 struct ProbOutput2D{T<:AbstractFloat,P<:Matrix{<:Complex},A<:Domain,fI,fS} <: TwoDim
     Plan::FFTW.rFFTWPlan{Float64,-1,false,2,UnitRange{Int64}}
+    PlanInv::AbstractFFTs.ScaledPlan{Complex{Float64},FFTW.rFFTWPlan{Complex{Float64},1,false,2,UnitRange{Int64}},Float64}
     Krings::P
     v0::P
     s::P

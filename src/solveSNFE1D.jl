@@ -1,6 +1,7 @@
 # Deterministic method for 1D
 function solveSNFE(prob::ProbOutput1D,saveat)
     P      = prob.Plan
+    Pinv   = prob.PlanInv
     rings  = prob.Ω.rings
     Krings = prob.Krings
     α      = prob.α
@@ -19,7 +20,7 @@ function solveSNFE(prob::ProbOutput1D,saveat)
     I  = similar(V)
     dv = similar(su)
     î  = similar(su)
-    a  = similar(su) # kernel by firing rate product in Fourier space
+    a  = zeros(ComplexF64,hN) # Fourier coefficients of the integral operator A(X,t)
 
     j = 0 # Index for saveat
     @inbounds for i = 1:length(t) # Time loop
@@ -34,15 +35,14 @@ function solveSNFE(prob::ProbOutput1D,saveat)
         mul!(î,P,ifftshift(I))
         î .= fftshift(î)
 
-        @. a = @views Krings[1:hN]*s[1:hN]
-        @inbounds for u = 2:rings
+        @inbounds for u = 1:rings
             @. a += @views Krings[1+hN*(u-1):hN*u]*s[1+hN*(u-1):hN*u]
         end
 
         # Euler explicit scheme: V_i+1 = V_i + (Δt/α)*(I_i - V_i + A_i)
         @. v = v + (dt/α)*(î - v + a)
 
-        ldiv!(V,P,ifftshift(v))
+        mul!(V,Pinv,ifftshift(v))
         V .= fftshift(V) # Perform inverse Fourier transform to compute V in natural domain
 
         # Update s
@@ -63,6 +63,7 @@ end
 # Stochastic method for 1D
 function solveSNFE(prob::ProbOutput1D,saveat,ϵ,np,ξ=0.1)
     P      = prob.Plan
+    Pinv   = prob.PlanInv
     rings  = prob.Ω.rings
     Krings = prob.Krings
     α      = prob.α
@@ -81,13 +82,13 @@ function solveSNFE(prob::ProbOutput1D,saveat,ϵ,np,ξ=0.1)
     su = Vector{Complex{Float64}}(undef,hN) # Firing Rate in Fourier space (delay i)
     dv = similar(su)
     î  = similar(su)
-    a  = similar(su) # kernel by firing rate product in Fourier space
     I  = similar(V)
+    a  = zeros(ComplexF64,hN) # Fourier coefficients of the integral operator A(X,t)
     λ  = [exp(-(i^2*ξ^2)/(8*pi)) for i in x] # Correlation matrix
     
     # Trajectories loop
     @inbounds for p = 1:np
-        copy!(v,prob.v0) # Initial condition V(X,0) = V0
+        copy!(v,prob.v0) # Initial condition v(x,0) = v0
         copy!(s,prob.s)  # Initialise with the initial values of S
         
         j = 1 # Index for tj
@@ -104,15 +105,14 @@ function solveSNFE(prob::ProbOutput1D,saveat,ϵ,np,ξ=0.1)
             mul!(î,P,ifftshift(I))
             î .= fftshift(î)
     
-            @. a = @views Krings[1:hN]*s[1:hN]
-            @inbounds for u = 2:rings
+            @inbounds for u = 1:rings
                 @. a += @views Krings[1+hN*(u-1):hN*u]*s[1+hN*(u-1):hN*j]
             end
 
             # Euler explicit scheme: V_i+1 = V_i + (Δt/α)*(I_i - V_i + A_i) + √(Δt)*ϵ*λ*w
             @. v = v + (dt/α)*(î - v + a) + sqrt(dt)*ϵ*λ*w
 
-            ldiv!(V,P,ifftshift(v))
+            mul!(V,Pinv,ifftshift(v))
             V .= fftshift(V) # Perform inverse Fourier transform to compute V in natural domain
 
             # Update s

@@ -41,22 +41,24 @@ end
 
 ### ### ### ### 2D problem:
 # Deterministic 2D case
-struct SolveOutDet2D{P<:Matrix{<:AbstractFloat},T<:Vector{<:AbstractFloat}} <: TwoDim
+struct SolveOutDet2D{P<:Matrix{<:AbstractFloat},T<:Vector{<:AbstractFloat},O<:Signed} <: TwoDim
     V::P
     x::T
     y::T
     t::T
     tsaved::T
+    N::O
 end
 
 # Stochastic 2D case
-struct SolveOutSto2D{M<:Array{<:AbstractFloat,3},P<:Matrix{<:AbstractFloat},T<:Vector{<:AbstractFloat}} <: TwoDim
+struct SolveOutSto2D{M<:Array{<:AbstractFloat,3},P<:Matrix{<:AbstractFloat},T<:Vector{<:AbstractFloat},O<:Signed} <: TwoDim
     V::M
     meanV::P
     x::T
     y::T
     t::T
     tsaved::T
+    N::O
 end
 
 # Make struct Det 2D case as a callable function (2 methods)
