@@ -19,7 +19,7 @@ function probSNFE(in::Input1D)
     v0 = Vector{ComplexF64}(undef,hN)
     init!(v0,s,P,in.firingRate,in.V0,Ω) # Initialise v0 and s in the Fourier domain
 
-    prob = ProbOutput1D(P,Krings,v0,s,Ω,in.α,in.extInput,in.firingRate)
+    prob = ProbOutput1D(P,Pinv,Krings,v0,s,Ω,in.α,in.extInput,in.firingRate)
 
     # Print useful values:
     println("Spatial step: dx = $(Ω.dx)")

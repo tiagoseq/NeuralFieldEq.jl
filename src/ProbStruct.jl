@@ -29,6 +29,7 @@ end
 # Structures for the probSNFE output
 struct ProbOutput1D{T<:AbstractFloat,P<:Vector{<:Complex},A<:Domain,fI,fS} <: OneDim
     Plan::FFTW.rFFTWPlan{Float64,-1,false,1,UnitRange{Int64}}
+    PlanInv::AbstractFFTs.ScaledPlan{Complex{Float64},FFTW.rFFTWPlan{Complex{Float64},1,false,1,UnitRange{Int64}},Float64}
     Krings::P
     v0::P
     s::P
