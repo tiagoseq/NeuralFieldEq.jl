@@ -88,8 +88,7 @@ function solveSNFE(prob::ProbOutput2D,saveat,ϵ,np,ξ=0.1)
     # √dt due to the explicit Euler-Maruyama
     # Shift λ due to the also shifted output of fft
     c = (N^2)*sqrt(dt)*ϵ*fftshift(λ) # ϵ is the level of additive noise
-    #toll = zeros(np,length(saveat))
-    #toll[p,j] = maximum(abs.(c.*w)./N^2)
+
     # Trajectories loop
     @inbounds for p = 1:np
         copy!(V,prob.V0) # Initial condition V(X,0) = V0 (Natural domain)
