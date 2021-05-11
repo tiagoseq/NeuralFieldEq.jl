@@ -11,7 +11,8 @@ struct Domain{T<:Real,P<:AbstractFloat,O<:Signed} <: TwoDim
     t::Vector
     v::P
     Δr::P
-    rings::O
+    rings1D::O
+    rings2D::O
 
     # constructor
     function Domain{T,P,O}(L::T,N::O,tspan::P,n::O,v::P) where {T<:Real,P<:AbstractFloat,O<:Signed}
@@ -30,10 +31,12 @@ struct Domain{T<:Real,P<:AbstractFloat,O<:Signed} <: TwoDim
         t  = collect(0:dt:tspan) # Time discretized
 
         # Delay computations
-        τ_max = L/(sqrt(2)*v)           # Maximum delay
+        τ_max_1D = L/(2*v)              # Maximum delay 1D domain
+        τ_max_2D = L/(sqrt(2)*v)        # Maximum delay 2D domain
         Δr    = max(1.0,(v*dt)/dx)      # Compute rings width
-        rings = 1+floor(Int64,τ_max/dt) # Number of delay rings (u_max)
+        rings1D = 1+floor(Int64,τ_max_1D/dt) # Number of delay rings (u_max)
+        rings2D = 1+floor(Int64,τ_max_2D/dt) # Number of delay rings (u_max)
         
-        new(L,N,dx,dy,x,y,tspan,n,dt,t,v,Δr,rings)
+        new(L,N,dx,dy,x,y,tspan,n,dt,t,v,Δr,rings1D,rings2D)
     end
 end

@@ -2,27 +2,27 @@
 function solveSNFE(prob::ProbOutput2D,saveat)
     P      = prob.Plan
     Pinv   = prob.PlanInv
-    rings  = prob.Ω.rings
     Krings = prob.Krings
+    rings  = prob.Ω.rings2D
     t      = prob.Ω.t
     x      = prob.Ω.x
     y      = prob.Ω.y
-    α      = prob.α
     N      = prob.Ω.N
     dt     = prob.Ω.dt
+    α      = prob.α
+    V      = prob.V0
     v      = prob.v0
-    s      = prob.s # Firing rate history in Fourier Space (matrix)
-    hN     = N÷2+1  # Half of dim N (due to the output of rfft)
+    sv     = prob.sv # Firing rate history in Fourier Space (matrix)
+    hN     = N÷2+1   # Half of dim N (due to the output of rfft)
     
     # Pre-allocate matrices
-    Vj = Matrix{Float64}(undef,N*length(saveat),N) # Stores the solution at 'saveat' instants
-    V  = Matrix{Float64}(undef,N,N)
-    su = Matrix{ComplexF64}(undef,hN,N) # Fourier coefficients of the Firing Rate at delay u
-    I  = similar(V)
-    î  = similar(su) # Fourier coefficients of the external input
-    a  = zeros(ComplexF64,hN,N) # Fourier coefficients of the integral operator A(X,t)
-    
-    j = 1 # Index for saveat
+    Vj  = Matrix{Float64}(undef,N*length(saveat),N) # Stores the solution at 'saveat' instants
+    svu = Matrix{ComplexF64}(undef,hN,N) # Fourier coefficients of the Firing Rate at delay u
+    I   = similar(V)
+    î   = similar(svu) # Fourier coefficients of the external input
+    a   = similar(svu) # Fourier coefficients of the integral operator A(X,t)
+    j   = 1 # Set index for solution saved at saveat instants
+
     @inbounds for i = 1:length(t) # Time loop
         ti = t[i]
         # Store solution V in saveat instants
@@ -31,31 +31,27 @@ function solveSNFE(prob::ProbOutput2D,saveat)
             j += 1
         end
 
-        I = [prob.I(i,j,ti) for j in y, i in x]
-        mul!(î,P,ifftshift(I))
-        î .= fftshift(î)
+        I .= [prob.I(i,j,ti) for j in y, i in x]
+        mul!(î,P,I)
 
         # Compute the integral operator's fourier coef at t_i
-        @inbounds for u = 1:rings
-            @. a += @views Krings[1+hN*(u-1):hN*u,:]*s[1+hN*(u-1):hN*u,:]
+        @. a = @views Krings[1:hN,:]*sv[1:hN,:]
+        @inbounds for u = 2:rings
+            @. a += @views Krings[1+hN*(u-1):hN*u,:]*sv[1+hN*(u-1):hN*u,:]
         end
         
-        # Euler explicit scheme: V_i+1 = V_i + (Δt/α)*(I_i - V_i + A_i)
+        # Euler explicit scheme: v_i+1 = v_i + (Δt/α)*(î_i - v_i + a_i)
         @. v = v + (dt/α)*(î - v + a)
 
-        mul!(V,Pinv,ifftshift(v))
-        V .= fftshift(V) # Perform inverse Fourier transform to compute V in natural domain
+        V .= Pinv * v # Perform inverse Fourier transform to compute V in natural domain
 
-        s[hN+1:end,:].= @view s[1:hN*(rings-1),:] # Update last delay ring
-        mul!(su,P,ifftshift(prob.S.(V))) # Apply the Real Fourier Transform to V
-        s[1:hN,:].= fftshift(su) # Update s first delay ring
-
+        sv[hN+1:end,:].= @view sv[1:hN*(rings-1),:] # Update last delay ring
+        mul!(svu,P,prob.S.(V)) # Apply the Real Fourier Transform to V
+        sv[1:hN,:].= svu # Update s first delay ring
     end #end time loop
 
     # Build our solution structure output
     sol = SolveOutDet2D(Vj,prob.Ω.x,prob.Ω.y,prob.Ω.t,saveat,N)
-
-    println("Solution saved at time instants: $(saveat)")
     
     return sol
 
@@ -65,78 +61,81 @@ end
 function solveSNFE(prob::ProbOutput2D,saveat,ϵ,np,ξ=0.1)
     P      = prob.Plan
     Pinv   = prob.PlanInv
-    rings  = prob.Ω.rings
     Krings = prob.Krings
+    rings  = prob.Ω.rings2D
     t      = prob.Ω.t
     x      = prob.Ω.x
     y      = prob.Ω.y
-    α      = prob.α
     N      = prob.Ω.N
     dt     = prob.Ω.dt
-    v      = prob.v0
-    s      = prob.s # Firing rate history in Fourier Space (matrix)
+    α      = prob.α
     hN     = N÷2+1  # Half of dim N (due to the output of rfft)
     
     # Pre-allocate matrices
     meanVj = Matrix{Float64}(undef,N*length(saveat),N)
-    Vj = Array{Float64,3}(undef,N*length(saveat),N,np) # Stores the solution at 'saveat' instants
-    V  = Matrix{Float64}(undef,N,N)
-    su = Matrix{ComplexF64}(undef,hN,N) # Fourier coefficients of the Firing Rate at delay u
-    I  = similar(V)
-    î  = similar(su) # Fourier coefficients of the external input
-    a  = zeros(ComplexF64,hN,N) # Fourier coefficients of the integral operator A(X,t)
-    λ  = [exp(-((i^2+j^2)*ξ^2)/(8*pi)) for j in y, i in x] # Correlation matrix
-    
+    Vj  = Array{Float64,3}(undef,N*length(saveat),N,np) # Stores the solution at 'saveat' instants
+    V   = Matrix{Float64}(undef,N,N)
+    v   = Matrix{ComplexF64}(undef,hN,N)
+    sv  = Matrix{ComplexF64}(undef,hN*rings,N) # Firing rate history in Fourier Space (matrix)
+    svu = similar(v) # Fourier coefficients of the Firing Rate at delay u
+    a   = similar(v) # Fourier coefficients of the integral operator A(X,t)
+    î   = similar(v) # Fourier coefficients of the external input
+    I   = similar(V)
+    λ   = [exp(-((i^2+j^2)*ξ^2)/(8*pi)) for j = 1:hN, i = 1:N] # Correlation matrix
+
+    # Pre-compute constant term of the stochastic part
+    # fft gives the fourier coeff mult by N. Need to scale up noise, to have same magnitude
+    # √dt due to the explicit Euler-Maruyama
+    # Shift λ due to the also shifted output of fft
+    c = (N^2)*sqrt(dt)*ϵ*fftshift(λ) # ϵ is the level of additive noise
+    #toll = zeros(np,length(saveat))
+    #toll[p,j] = maximum(abs.(c.*w)./N^2)
     # Trajectories loop
     @inbounds for p = 1:np
-        copy!(v,prob.v0) # Initial condition v(X,0) = v0
-        copy!(s,prob.s)  # Initialise with the initial values of S
+        copy!(V,prob.V0) # Initial condition V(X,0) = V0 (Natural domain)
+        copy!(v,prob.v0) # Initial condition v(X,0) = v0 (Fourier domain)
+        copy!(sv,prob.sv)  # Initialise with the initial values of S
 
-        j = 1 # Index for tj
+        j = 1 # Set index for tj
         @inbounds for i = 1:length(t) # Time loop
-            w = rand(Normal(),hN,N) # Stochastic term
+            w = randn(ComplexF64,hN,N) # Stochastic term distribution N(0,1)
             ti = t[i]
             # Store solution V in t[j] instant
-            if t[i] in saveat
+            if ti in saveat
                 Vj[(j-1)*N+1:N*j,:,p] .= V
                 j += 1
             end
 
-            I = [prob.I(i,j,ti) for j in y, i in x]
-            mul!(î,P,ifftshift(I))
-            î .= fftshift(î)
+            I .= [prob.I(i,j,ti) for j in y, i in x]
+            mul!(î,P,I)
 
             # Compute the integral operator's fourier coef at t_i
-            @inbounds for u = 1:rings
-                @. a += @views Krings[1+hN*(u-1):hN*u,:]*s[1+hN*(u-1):hN*u,:]
+            @. a = @views Krings[1:hN,:]*sv[1:hN,:]
+            @inbounds for u = 2:rings
+                @. a += @views Krings[1+hN*(u-1):hN*u,:]*sv[1+hN*(u-1):hN*u,:]
             end
 
-            # Euler explicit scheme: V_i+1 = V_i + (Δt/α)*(I_i - V_i + A_i) + √(Δt)*ϵ*λ*w
-            @. v = v + (dt/α)*(î - v + a) + sqrt(dt)*ϵ*λ*w
+            # Euler explicit scheme: v_i+1 = v_i + (Δt/α)*(î_i - v_i + a_i) + √(Δt)*ϵ*λ*w
+            @. v = v + (dt/α)*(î - v + a) + c*w
+            
+            # Apply inverse Fourier transform to compute V in natural domain
+            V .= Pinv * v
 
-            mul!(V,Pinv,ifftshift(v))
-            V .= fftshift(V) # Perform inverse Fourier transform to compute V in natural domain
-
-            s[hN+1:end,:] .= @view s[1:hN*(rings-1),:] # Update last delay ring
-            mul!(su,P,ifftshift(prob.S.(V))) # Apply the Real Fourier Transform to V
-            s[1:hN,:] .= fftshift(su) # Update last delay ring
-
+            sv[hN+1:end,:] .= @view sv[1:hN*(rings-1),:] # Update last delay ring
+            mul!(svu,P,prob.S.(V)) # Apply the Real Fourier Transform to V
+            sv[1:hN,:].= svu # Update s first delay ring
         end #end time loop
-
     end #end trajectories loop
 
     # Compute the mean solution across all trajectories
     @inbounds for j = 1:N
         @inbounds for i = 1:N*length(saveat)
-            meanVj[i,j] = mean(Vj[i,j,:])
+            meanVj[i,j] = mean(@view Vj[i,j,:])
         end
     end
 
     # Build our solution structure output
     sol = SolveOutSto2D(Vj,meanVj,prob.Ω.x,prob.Ω.y,prob.Ω.t,saveat,N)
-
-    println("Solution saved at time instants: $(saveat)")
-    
     
     return sol
 

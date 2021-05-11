@@ -79,4 +79,4 @@ function (b::SolveOutSto2D)(ti::AbstractFloat)
     t = findlast(x->x==ti,b.tsaved)
     return b.meanV[(t-1)*b.N+1:b.N*t,:]
 end
-(b::SolveOutSto2D)(ti::Int64) = a.meanV[(ti-1)*b.N+1:b.N*ti,:]
+(b::SolveOutSto2D)(ti::Int64) = b.meanV[(ti-1)*b.N+1:b.N*ti,:]

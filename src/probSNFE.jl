@@ -4,8 +4,10 @@ function probSNFE(in::Input1D)
 
     Ω = Domain{typeof(in.L),typeof(in.T),typeof(N)}(in.L,N,in.T,in.n,in.v)
 
-    P    = plan_rfft(zeros(N)) # Real IFFT operator for vector of dim N
+    P    = plan_rfft(zeros(N),flags=FFTW.MEASURE) # Real IFFT operator for vector of dim N
     Pinv = plan_irfft(zeros(ComplexF64,hN),N,flags=FFTW.MEASURE) # Real IFFT operator for hN vectors
+    #P    = plan_fft(zeros(ComplexF64,N),flags=FFTW.MEASURE) # Real IFFT operator for vector of dim N
+    #Pinv = plan_ifft(zeros(ComplexF64,N),flags=FFTW.MEASURE) # Real IFFT operator for hN vectors
     # Apply rfft:  Â = P * A (==mul!(Â,P,A)). Dim of Â is N÷2+1
     # Apply irfft: A = Pinv * Â (==mul!(A,P,Â))
 
@@ -15,20 +17,14 @@ function probSNFE(in::Input1D)
 
     # Initialization of past S(V) values (from t=-Tmax to t=0, where Tmax = rings*dt)
     # Each block (rings*hN) × N stores the S(V) rfft with the corresp delayed value
-    s  = Vector{Complex{Float64}}(undef,Ω.rings*hN)
+    sv = Vector{Complex{Float64}}(undef,Ω.rings1D*hN)
     v0 = Vector{ComplexF64}(undef,hN)
-    init!(v0,s,P,in.firingRate,in.V0,Ω) # Initialise v0 and s in the Fourier domain
+    V0 = Vector{Float64}(undef,N)
+    init!(v0,sv,V0,P,in.firingRate,in.V0,Ω) # Initialise V0 in natural domain and v0 and sv in the Fourier domain
 
-    prob = ProbOutput1D(P,Pinv,Krings,v0,s,Ω,in.α,in.extInput,in.firingRate)
+    prob = ProbOutput1D(P,Pinv,Krings,V0,v0,sv,Ω,in.α,in.extInput,in.firingRate)
 
-    # Print useful values:
-    println("Spatial step: dx = $(Ω.dx)")
-    println("Temporal step: dt = $(Ω.dt)")
-    println("Ω × [0;T] = [$(Ω.x[1]),$(Ω.x[end])] × [0, $(Ω.t[end])]")
-    println("Velocity: $(in.v)")
-    println("Number of delay rings: $(Ω.rings)")
-
-    return prob
+return prob
 end
 
 function probSNFE(in::Input2D)
@@ -48,18 +44,12 @@ function probSNFE(in::Input2D)
 
     # Initialization of past S(V) values (from t=-Tmax to t=0, where Tmax = rings*dt)
     # Each block (rings*hN) × N stores the S(V) rfft with the correspondent delayed value
-    s  = Matrix{ComplexF64}(undef,Ω.rings*hN,N)
+    sv = Matrix{ComplexF64}(undef,Ω.rings2D*hN,N)
     v0 = Matrix{ComplexF64}(undef,hN,N)
-    init!(v0,s,P,in.firingRate,in.V0,Ω) # Initialise v0 and s in the Fourier domain
+    V0 = Matrix{Float64}(undef,N,N)
+    init!(v0,sv,V0,P,in.firingRate,in.V0,Ω) # Initialise V0 in natural domain and v0 and sv in the Fourier domain
 
-    prob = ProbOutput2D(P,Pinv,Krings,v0,s,Ω,in.α,in.extInput,in.firingRate)
-
-    # Print useful values:
-    println("Spatial step: dx = dy = $(Ω.dx)")
-    println("Temporal step: dt = $(Ω.dt)")
-    println("Ω × [0;T] = [$(Ω.x[1]),$(Ω.x[end])]^2 × [0, $(Ω.t[end])]")
-    println("Velocity: $(in.v)")
-    println("Number of delay rings: $(Ω.rings)")
+    prob = ProbOutput2D(P,Pinv,Krings,V0,v0,sv,Ω,in.α,in.extInput,in.firingRate)
 
     return prob
 end
