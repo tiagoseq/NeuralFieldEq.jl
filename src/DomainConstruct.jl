@@ -1,18 +1,18 @@
 struct Domain{T<:Real,P<:AbstractFloat,O<:Signed} <: TwoDim
-    L::T
-    N::O
-    dx::P
-    dy::P
-    x::Vector
-    y::Vector
-    tspan::P
-    n::O
-    dt::P
-    t::Vector
-    v::P
-    Δr::P
-    rings1D::O
-    rings2D::O
+    L       :: T
+    N       :: O
+    dx      :: P
+    dy      :: P
+    x       :: Vector
+    y       :: Vector
+    tspan   :: P
+    n       :: O
+    dt      :: P
+    t       :: Vector
+    v       :: P
+    Δr      :: P
+    rings1D :: O
+    rings2D :: O
 
     # constructor
     function Domain{T,P,O}(L::T,N::O,tspan::P,n::O,v::P) where {T<:Real,P<:AbstractFloat,O<:Signed}

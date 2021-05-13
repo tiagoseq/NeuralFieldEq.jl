@@ -1,53 +1,103 @@
-# Deterministic method for 1D
-function solveSNFE(prob::ProbOutput1D,saveat)
+@doc raw"""
+    solveSNFE(problem,saveat)
+
+# Arguments:
+- `problem::ProbOutput1D`: Output of probSNFE with Input1D 
+- `problem::ProbOutput2D`: Output of probSNFE with Input2D
+- `saveat::AbstractVector`: Vector containing the instants where the solution is saved at
+
+Return a structure containing the solution to the NFE problem saved at saveat instants.
+Also return x,y and t to help plotting solutions.
+
+The output structure is defined with methods that return the solution at saveat instant j.
+# Examples
+```julia-repl
+julia> sol = solveSNFE(prob1D,[5.0,20.0]) # Deterministic solution saved at t=5 and t=20
+julia> sol(2)    # Solution at time instant t=20
+julia> sol(20.0) # Same result from above
+```
+If the problem is in 1D the solution will be a vector, if it is in 2D will be a matrix.
+
+-------------------------------------------------------------------------------------------
+    solveSNFE(problem,saveat,ϵ,np,ξ=0.1)
+
+Solve stochastic version of an NFE for np trajectories, noise level ϵ and correlation ξ.
+
+# Arguments:
+- `problem::ProbOutput1D`: Output of probSNFE with Input1D 
+- `problem::ProbOutput2D`: Output of probSNFE with Input2D
+- `saveat::AbstractVector`: Vector containing the instants where the solution is saved at
+- `ϵ::Number`: Level of additive noise
+- `np::Integer`: Number of simulations
+- `ξ::AbstractFloat=0.1`: Spatial correlation parameter
+
+Return a structure containing the mean solution and the trajectories to the
+SNFE problem saved at saveat instants.
+Also return x,y and t to help plotting solutions.
+
+The output structure is defined with methods that return the path
+at saveat instant j at trajectory p and the mean solution at instant j.
+# Examples
+```julia-repl
+julia> sol_sto = solveSNFE(prob,[5.0,20.0],0.01,100)
+julia> # Stochastic solution saved at t=5,20, with noise level 0.01 simulated 100 times.
+julia> sol_sto(2,4)    # Fourth path at time instant t=20
+julia> sol_sto(20.0,4) # Same result from above
+julia> sol_sto(1)   # Mean solution at time instant t=20
+julia> sol_sto(5.0) # Same result from above
+```
+If the problem is in 1D the solution will be a vector, if it is in 2D will be a matrix.
+"""
+function solveSNFE(prob::ProbOutput1D,saveat) # Deterministic method for 1D
     P      = prob.Plan
     Pinv   = prob.PlanInv
-    Krings = prob.Krings
+    krings = prob.krings
     α      = prob.α
     rings  = prob.Ω.rings1D
     N      = prob.Ω.N
     t      = prob.Ω.t
     x      = prob.Ω.x
     dt     = prob.Ω.dt
-    V      = prob.V0
-    v      = prob.v0
-    sv     = prob.sv # Firing rate history in Fourier Space (vector)
+    V      = prob.V0 # Initial condition in natural space (needed if saveat contains t[1])
+    v      = prob.v0 # Initial condition in Fourier space
+    sv     = prob.sv # Firing Rate in Fourier space (all delays)
     hN     = N÷2+1   # Half of dim N (due to the output of rfft)
 
     # Pre-allocate vectors and matrices
-    Vj  = Vector{Float64}(undef,N*length(saveat))
-    svu = Vector{ComplexF64}(undef,hN) # Firing Rate in Fourier space (delay i)
+    Vj  = Vector{Float64}(undef,N*length(saveat)) # Store the solution at saveat
+    svu = Vector{ComplexF64}(undef,hN) # Firing Rate in Fourier space (delay u)
     I   = similar(V)
-    î   = similar(svu)
-    a   = similar(svu) # Fourier coefficients of the integral operator A(X,t)
+    î   = similar(svu) # rfft of I
+    a   = similar(svu) # rfft of the integral operator A(X,t)
+    j   = 1 # Index for saveat
 
-    j = 1 # Index for saveat
     @inbounds for i = 1:length(t) # Time loop
         ti = t[i]
-        # Store solution V in saveat instants
+        # Store solution V at saveat instants
         if ti in saveat
             Vj[(j-1)*N+1:N*j] .= V
             j += 1
         end
 
-        I  = [prob.I(i,ti) for i in x]
-        mul!(î,P,I)
+        I.= [prob.I(i,ti) for i in x] # Discretise I
+        mul!(î,P,I)                    # Compute rfft of I
 
-        @. a = @views Krings[1:hN]*sv[1:hN]
-        @inbounds for u = 2:rings
-            @. a += @views Krings[1+hN*(u-1):hN*u]*sv[1+hN*(u-1):hN*u]
+        # Compute the integral operator's at frequency domain at t_i
+        @. a = @views krings[1:hN]*sv[1:hN] # Init a
+        @inbounds for u = 2:rings # Rings loop
+            @. a += @views krings[1+hN*(u-1):hN*u]*sv[1+hN*(u-1):hN*u]
         end
 
         # Euler explicit scheme: v_i+1 = v_i + (Δt/α)*(î_i - v_i + a_i)
         @. v = v + (dt/α)*(î - v + a)
 
         V .= Pinv * v # Perform inverse Fourier transform to compute V in natural domain
-        V .= V
 
-        # Update s
-        sv[hN+1:end] .= @view sv[1:hN*(rings-1)]
-        mul!(svu,P,prob.S.(V)) # Apply Real Fourier Transform
-        sv[1:hN] .= svu
+        # Update sv
+        # Every delay block moves one block down. The last one is deleted
+        sv[hN+1:end] .= @view sv[1:hN*(rings-1)] 
+        mul!(svu,P,prob.S.(V)) # Apply the Real Fourier Transform to V
+        sv[1:hN] .= svu        # Update sv first delay ring
     end #end time loop
 
     # Build our solution structure output
@@ -61,10 +111,9 @@ end
 function solveSNFE(prob::ProbOutput1D,saveat,ϵ,np,ξ=0.1)
     P      = prob.Plan
     Pinv   = prob.PlanInv
-    Krings = prob.Krings
+    krings = prob.krings
     α      = prob.α
     rings  = prob.Ω.rings1D
-    L      = prob.Ω.L
     N      = prob.Ω.N
     t      = prob.Ω.t
     x      = prob.Ω.x
@@ -72,14 +121,14 @@ function solveSNFE(prob::ProbOutput1D,saveat,ϵ,np,ξ=0.1)
     hN     = N÷2+1   # Half of dim N (due to the output of rfft)
     
     # Pre-allocate matrices
-    meanVj = Vector{Float64}(undef,N*length(saveat))
-    Vj  = Matrix{Float64}(undef,N*length(saveat),np)
+    meanVj = Vector{Float64}(undef,N*length(saveat)) # Store the mean solution at saveat
+    Vj  = Matrix{Float64}(undef,N*length(saveat),np) # Store the solution at saveat at path p
     V   = Vector{Float64}(undef,N)
-    sv  = Vector{ComplexF64}(undef,hN*rings)
-    svu = Vector{Complex{Float64}}(undef,hN) # Firing rate history in Fourier Space (vector)
+    sv  = Vector{ComplexF64}(undef,hN*rings) # Firing Rate in Fourier space (all delays)
+    svu = Vector{Complex{Float64}}(undef,hN) # Firing Rate in Fourier space (delay u)
     I   = similar(V)
-    v   = similar(svu)
-    î   = similar(svu)
+    v   = similar(svu) 
+    î   = similar(svu) # rfft of I
     a   = similar(svu) # Fourier coefficients of the integral operator A(X,t)
     λ   = [exp(-(i^2*ξ^2)/(8*pi)) for i = 1:hN] # Correlation matrix
     
@@ -91,9 +140,9 @@ function solveSNFE(prob::ProbOutput1D,saveat,ϵ,np,ξ=0.1)
     
     # Trajectories loop
     @inbounds for p = 1:np
-        copy!(V,prob.V0) # Initial condition V(X,0) = V0 (Natural domain)
-        copy!(v,prob.v0) # Initial condition v(x,0) = v0 (Fourier domain)
-        copy!(sv,prob.sv)  # Initialise with the initial values of S
+        copy!(V,prob.V0)  # Initial condition V(X,0) = V0 (Natural domain)
+        copy!(v,prob.v0)  # Initial condition v(x,0) = v0 (Fourier domain)
+        copy!(sv,prob.sv) # Initialise with the initial values of sv
         
         j = 1 # Index for tj
         @inbounds for i = 1:length(t) # Time loop
@@ -105,12 +154,13 @@ function solveSNFE(prob::ProbOutput1D,saveat,ϵ,np,ξ=0.1)
                 j += 1
             end
     
-            I  = [prob.I(i,ti) for i in x]
-            mul!(î,P,I)
+            I.= [prob.I(i,ti) for i in x] # Discretise I
+            mul!(î,P,I)                     # rfft I
     
-            @. a = @views Krings[1:hN]*sv[1:hN]
-            @inbounds for u = 2:rings
-                @. a += @views Krings[1+hN*(u-1):hN*u]*sv[1+hN*(u-1):hN*u]
+            # Compute the integral operator's at frequency domain at t_i
+            @. a = @views krings[1:hN]*sv[1:hN] # Init a
+            @inbounds for u = 2:rings # Ring loop
+                @. a += @views krings[1+hN*(u-1):hN*u]*sv[1+hN*(u-1):hN*u]
             end
 
             # Euler-Maruyama explicit scheme: v_i+1 = v_i + (Δt/α)*(î_i - v_i + a_i) + √(Δt)*ϵ*λ*w
@@ -118,10 +168,11 @@ function solveSNFE(prob::ProbOutput1D,saveat,ϵ,np,ξ=0.1)
 
             V .= Pinv * v # Perform inverse Fourier transform to compute V in natural domain
 
-            # Update s
+            # Update sv
+            # Every delay block moves one block down. The last one is deleted
             sv[hN+1:end] .= @view sv[1:hN*(rings-1)]
             mul!(svu,P,prob.S.(V)) # Apply the Real Fourier Transform to V
-            sv[1:hN,:].= svu       # Update s first delay ring
+            sv[1:hN,:].= svu       # Update sv first delay ring
         end #end time loop
 
     end #end trajectories loop

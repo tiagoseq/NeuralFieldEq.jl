@@ -1,7 +1,7 @@
 module AuxFunctions
 
 using LinearAlgebra: ldiv!, mul!
-using FFTW: fftshift, ifftshift, rfft
+using FFTW: fftshift
 export peel, init!
 
 function disc(centre::T,N::T,radius::P) where {T<:Signed,P<:AbstractFloat} # 1D method
@@ -24,10 +24,14 @@ end
 
 
 function peel(P,A::Vector{T},Ω) where {T<:AbstractFloat} # 1D method
+    # This function constructs k_delay in 1D
+    # Perform the Fourier Transform of the respective delay ring
+
     hN = Ω.N÷2+1 # Half of dim N
-    B  = Vector{ComplexF64}(undef,Ω.rings1D*hN)
+    B  = Vector{ComplexF64}(undef,Ω.rings1D*hN) # Each hN block corresponds to a delay ring
     Bi = Vector{ComplexF64}(undef,hN)
 
+    # Ring loop. For each delay ring compute rfft
     @inbounds for i = 2:Ω.rings1D
         r1 = (i-1)*Ω.Δr
         r2 = i*Ω.Δr
@@ -41,10 +45,14 @@ function peel(P,A::Vector{T},Ω) where {T<:AbstractFloat} # 1D method
 end
 
 function peel(P,A::Matrix{T},Ω) where {T<:AbstractFloat} # 2D method
+    # This function constructs k_delay in 2D
+    # Perform the Fourier Transform of the respective delay ring
+
     hN = Ω.N÷2+1 # Half of dim N
-    B  = Matrix{ComplexF64}(undef,hN*Ω.rings2D,Ω.N)
+    B  = Matrix{ComplexF64}(undef,hN*Ω.rings2D,Ω.N) # Each (hN X N) block corresponds to a delay ring
     Bi = Matrix{ComplexF64}(undef,hN,Ω.N)
 
+    # Ring loop. For each delay ring compute rfft
     @inbounds for i = 2:Ω.rings2D
         r1 = (i-1)*Ω.Δr
         r2 = i*Ω.Δr
@@ -61,7 +69,7 @@ end
 function init!(v::Vector{<:Complex{<:T}},sv::Vector{<:Complex{<:T}},V0arr::Vector{T},P,S,V0::Real,Ω) where {T<:AbstractFloat}
     svu   = Vector{ComplexF64}(undef,Ω.N÷2+1)
     V0arr.= fill(V0,Ω.N) # Initial condition V(x,y,t=0)
-    mul!(v,P,V0arr)       # Initial condition in the Fourier domain
+    mul!(v,P,V0arr)      # Initial condition in the Fourier domain
 
     mul!(svu,P,S.(V0arr))
     sv .= repeat(svu,Ω.rings1D)
@@ -79,9 +87,10 @@ end
 
 # Method init for 1D with V0 being a function
 function init!(v::Vector{<:Complex{<:T}},sv::Vector{<:Complex{<:T}},V0arr::Vector{T},P,S,V0,Ω) where {T<:AbstractFloat}
+    # V0 is a function
     svu   = Vector{ComplexF64}(undef,Ω.N÷2+1)
-    V0arr.= [V0(i) for i in Ω.x]
-    mul!(v,P,V0arr)
+    V0arr.= [V0(i) for i in Ω.x] # Discretise V0 (Time domain)
+    mul!(v,P,V0arr)              # Compute V0 in frequency domain
 
     mul!(svu,P,S.(V0arr))
     sv .= repeat(svu,Ω.rings1D)
@@ -89,9 +98,10 @@ end
 
 # Method init for 2D with V0 being a function
 function init!(v::Matrix{<:Complex{<:T}},sv::Matrix{<:Complex{<:T}},V0arr::Matrix{T},P,S,V0,Ω) where {T<:AbstractFloat}
+    # V0 is a function
     svu   = Matrix{ComplexF64}(undef,Ω.N÷2+1,Ω.N)
-    V0arr.= [V0(i,j) for j in Ω.y,i in Ω.x]
-    mul!(v,P,V0arr)
+    V0arr.= [V0(i,j) for j in Ω.y,i in Ω.x] # Discretise V0 (Time domain)
+    mul!(v,P,V0arr)                         # Compute V0 in frequency domain
 
     mul!(svu,P,S.(V0arr))
     sv .= repeat(svu,Ω.rings2D,1)

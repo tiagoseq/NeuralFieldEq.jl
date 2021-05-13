@@ -2,7 +2,7 @@
 function solveSNFE(prob::ProbOutput2D,saveat)
     P      = prob.Plan
     Pinv   = prob.PlanInv
-    Krings = prob.Krings
+    krings = prob.krings
     rings  = prob.Ω.rings2D
     t      = prob.Ω.t
     x      = prob.Ω.x
@@ -10,9 +10,9 @@ function solveSNFE(prob::ProbOutput2D,saveat)
     N      = prob.Ω.N
     dt     = prob.Ω.dt
     α      = prob.α
-    V      = prob.V0
-    v      = prob.v0
-    sv     = prob.sv # Firing rate history in Fourier Space (matrix)
+    V      = prob.V0 # Initial condition in natural space (needed if saveat contains t[1])
+    v      = prob.v0 # Initial condition in Fourier space
+    sv     = prob.sv # Firing Rate in Fourier space (all delays)
     hN     = N÷2+1   # Half of dim N (due to the output of rfft)
     
     # Pre-allocate matrices
@@ -31,13 +31,13 @@ function solveSNFE(prob::ProbOutput2D,saveat)
             j += 1
         end
 
-        I .= [prob.I(i,j,ti) for j in y, i in x]
-        mul!(î,P,I)
+        I.= [prob.I(i,j,ti) for j in y, i in x] # Discretise I
+        mul!(î,P,I)                              # rfft of I
 
         # Compute the integral operator's fourier coef at t_i
-        @. a = @views Krings[1:hN,:]*sv[1:hN,:]
-        @inbounds for u = 2:rings
-            @. a += @views Krings[1+hN*(u-1):hN*u,:]*sv[1+hN*(u-1):hN*u,:]
+        @. a = @views krings[1:hN,:]*sv[1:hN,:] # Init a
+        @inbounds for u = 2:rings # Rings loop
+            @. a += @views krings[1+hN*(u-1):hN*u,:]*sv[1+hN*(u-1):hN*u,:]
         end
         
         # Euler explicit scheme: v_i+1 = v_i + (Δt/α)*(î_i - v_i + a_i)
@@ -45,9 +45,11 @@ function solveSNFE(prob::ProbOutput2D,saveat)
 
         V .= Pinv * v # Perform inverse Fourier transform to compute V in natural domain
 
-        sv[hN+1:end,:].= @view sv[1:hN*(rings-1),:] # Update last delay ring
+        # Update sv
+        # Every delay block moves one block down. The last one is deleted
+        sv[hN+1:end,:].= @view sv[1:hN*(rings-1),:]
         mul!(svu,P,prob.S.(V)) # Apply the Real Fourier Transform to V
-        sv[1:hN,:].= svu # Update s first delay ring
+        sv[1:hN,:].= svu # Update sv first delay ring
     end #end time loop
 
     # Build our solution structure output
@@ -61,7 +63,7 @@ end
 function solveSNFE(prob::ProbOutput2D,saveat,ϵ,np,ξ=0.1)
     P      = prob.Plan
     Pinv   = prob.PlanInv
-    Krings = prob.Krings
+    krings = prob.krings
     rings  = prob.Ω.rings2D
     t      = prob.Ω.t
     x      = prob.Ω.x
@@ -72,8 +74,8 @@ function solveSNFE(prob::ProbOutput2D,saveat,ϵ,np,ξ=0.1)
     hN     = N÷2+1  # Half of dim N (due to the output of rfft)
     
     # Pre-allocate matrices
-    meanVj = Matrix{Float64}(undef,N*length(saveat),N)
-    Vj  = Array{Float64,3}(undef,N*length(saveat),N,np) # Stores the solution at 'saveat' instants
+    meanVj = Matrix{Float64}(undef,N*length(saveat),N) # Store the mean solution at saveat
+    Vj  = Array{Float64,3}(undef,N*length(saveat),N,np) # Store the solution at saveat at path p
     V   = Matrix{Float64}(undef,N,N)
     v   = Matrix{ComplexF64}(undef,hN,N)
     sv  = Matrix{ComplexF64}(undef,hN*rings,N) # Firing rate history in Fourier Space (matrix)
@@ -105,13 +107,13 @@ function solveSNFE(prob::ProbOutput2D,saveat,ϵ,np,ξ=0.1)
                 j += 1
             end
 
-            I .= [prob.I(i,j,ti) for j in y, i in x]
+            I.= [prob.I(i,j,ti) for j in y, i in x]
             mul!(î,P,I)
 
             # Compute the integral operator's fourier coef at t_i
-            @. a = @views Krings[1:hN,:]*sv[1:hN,:]
-            @inbounds for u = 2:rings
-                @. a += @views Krings[1+hN*(u-1):hN*u,:]*sv[1+hN*(u-1):hN*u,:]
+            @. a = @views krings[1:hN,:]*sv[1:hN,:] # Init a
+            @inbounds for u = 2:rings # Ring loop
+                @. a += @views krings[1+hN*(u-1):hN*u,:]*sv[1+hN*(u-1):hN*u,:]
             end
 
             # Euler explicit scheme: v_i+1 = v_i + (Δt/α)*(î_i - v_i + a_i) + √(Δt)*ϵ*λ*w
@@ -120,9 +122,11 @@ function solveSNFE(prob::ProbOutput2D,saveat,ϵ,np,ξ=0.1)
             # Apply inverse Fourier transform to compute V in natural domain
             V .= Pinv * v
 
-            sv[hN+1:end,:] .= @view sv[1:hN*(rings-1),:] # Update last delay ring
+            # Update sv
+            # Every delay block moves one block down. The last one is deleted
+            sv[hN+1:end,:] .= @view sv[1:hN*(rings-1),:]
             mul!(svu,P,prob.S.(V)) # Apply the Real Fourier Transform to V
-            sv[1:hN,:].= svu # Update s first delay ring
+            sv[1:hN,:].= svu # Update sv first delay ring
         end #end time loop
     end #end trajectories loop
 
