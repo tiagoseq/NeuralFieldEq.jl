@@ -17,14 +17,38 @@ function show(io::IO, p::ProbOutput2D)
 end
 
 function show(io::IO, s::SolveOutDet1D)
-    print(io,"Solution saved at time instants: $(s.tsaved)")
+    if issubset(s.tsaved,s.t)
+        print(io,
+              " ├─ Solution saved at all time instants.", '\n',
+              " ├─ 1D deterministic solution")
+    else
+        print(io,"Solution not saved at all time instants. Choose appropriate time instants.")
+    end
 end
 function show(io::IO, s::SolveOutDet2D)
-    print(io,"Solution saved at time instants: $(s.tsaved)")
+    if issubset(s.tsaved,s.t)
+        print(io,
+        " ├─ Solution saved at all time instants.", '\n',
+        " ├─ 2D deterministic solution")
+    else
+        print(io,"Solution not saved at all time instants. Choose appropriate time instants.")
+    end
 end
 function show(io::IO, s::SolveOutSto1D)
-    print(io,"Solution saved at time instants: $(s.tsaved)")
+    if issubset(s.tsaved,s.t)
+        print(io,
+        " ├─ Solution saved at all time instants.", '\n',
+        " ├─ 1D stochastic solution")
+    else
+        print(io,"Solution not saved at all time instants. Choose appropriate time instants.")
+    end
 end
 function show(io::IO, s::SolveOutSto2D)
-    print(io,"Solution saved at time instants: $(s.tsaved)")
+    if issubset(s.tsaved,s.t)
+        print(io,
+        " ├─ Solution saved at all time instants.", '\n',
+        " ├─ 2D stochastic solution")
+    else
+        print(io,"Solution not saved at all time instants. Choose appropriate time instants.")
+    end
 end
