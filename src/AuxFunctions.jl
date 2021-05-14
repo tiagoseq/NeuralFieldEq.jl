@@ -28,13 +28,14 @@ function peel(P,A::Vector{T},Ω) where {T<:AbstractFloat} # 1D method
     # Perform the Fourier Transform of the respective delay ring
 
     hN = Ω.N÷2+1 # Half of dim N
-    B  = Vector{ComplexF64}(undef,Ω.rings1D*hN) # Each hN block corresponds to a delay ring
-    Bi = Vector{ComplexF64}(undef,hN)
+    B  = Vector{Complex{T}}(undef,Ω.rings1D*hN) # Each hN block corresponds to a delay ring
+    Bi = Vector{Complex{T}}(undef,hN)
 
     # Ring loop. For each delay ring compute rfft
     @inbounds for i = 2:Ω.rings1D
         r1 = (i-1)*Ω.Δr
         r2 = i*Ω.Δr
+        # fftshift is needed because the integral op A is a circulary convolution
         mul!(Bi,P,fftshift((disc(hN,Ω.N,r2) - disc(hN,Ω.N,r1)).*A))
         B[1+hN*(i-1):hN*i] .= Bi
     end
@@ -49,13 +50,14 @@ function peel(P,A::Matrix{T},Ω) where {T<:AbstractFloat} # 2D method
     # Perform the Fourier Transform of the respective delay ring
 
     hN = Ω.N÷2+1 # Half of dim N
-    B  = Matrix{ComplexF64}(undef,hN*Ω.rings2D,Ω.N) # Each (hN X N) block corresponds to a delay ring
-    Bi = Matrix{ComplexF64}(undef,hN,Ω.N)
+    B  = Matrix{Complex{T}}(undef,hN*Ω.rings2D,Ω.N) # Each (hN X N) block corresponds to a delay ring
+    Bi = Matrix{Complex{T}}(undef,hN,Ω.N)
 
     # Ring loop. For each delay ring compute rfft
     @inbounds for i = 2:Ω.rings2D
         r1 = (i-1)*Ω.Δr
         r2 = i*Ω.Δr
+        # fftshift is needed because the integral op A is a circulary convolution
         mul!(Bi,P,fftshift((disc([hN,hN],Ω.N,r2) - disc([hN,hN],Ω.N,r1)).*A))
         B[1+hN*(i-1):hN*i,:] .= Bi
     end
@@ -67,7 +69,7 @@ end
 
 # Method init for 1D with V0 being a constant
 function init!(v::Vector{<:Complex{<:T}},sv::Vector{<:Complex{<:T}},V0arr::Vector{T},P,S,V0::Real,Ω) where {T<:AbstractFloat}
-    svu   = Vector{ComplexF64}(undef,Ω.N÷2+1)
+    svu   = Vector{Complex{T}}(undef,Ω.N÷2+1)
     V0arr.= fill(V0,Ω.N) # Initial condition V(x,y,t=0)
     mul!(v,P,V0arr)      # Initial condition in the Fourier domain
 
@@ -77,7 +79,7 @@ end
 
 # Method init for 2D with V0 being a constant
 function init!(v::Matrix{<:Complex{<:T}},sv::Matrix{<:Complex{<:T}},V0arr::Matrix{T},P,S,V0::Real,Ω) where {T<:AbstractFloat}
-    svu   = Matrix{ComplexF64}(undef,Ω.N÷2+1,Ω.N)
+    svu   = Matrix{Complex{T}}(undef,Ω.N÷2+1,Ω.N)
     V0arr.= fill(V0,Ω.N,Ω.N) # Initial condition V(x,y,t=0)
     mul!(v,P,V0arr)          # Initial condition in the Fourier domain
 
@@ -88,7 +90,7 @@ end
 # Method init for 1D with V0 being a function
 function init!(v::Vector{<:Complex{<:T}},sv::Vector{<:Complex{<:T}},V0arr::Vector{T},P,S,V0,Ω) where {T<:AbstractFloat}
     # V0 is a function
-    svu   = Vector{ComplexF64}(undef,Ω.N÷2+1)
+    svu   = Vector{Complex{T}}(undef,Ω.N÷2+1)
     V0arr.= [V0(i) for i in Ω.x] # Discretise V0 (Time domain)
     mul!(v,P,V0arr)              # Compute V0 in frequency domain
 
@@ -99,7 +101,7 @@ end
 # Method init for 2D with V0 being a function
 function init!(v::Matrix{<:Complex{<:T}},sv::Matrix{<:Complex{<:T}},V0arr::Matrix{T},P,S,V0,Ω) where {T<:AbstractFloat}
     # V0 is a function
-    svu   = Matrix{ComplexF64}(undef,Ω.N÷2+1,Ω.N)
+    svu   = Matrix{Complex{T}}(undef,Ω.N÷2+1,Ω.N)
     V0arr.= [V0(i,j) for j in Ω.y,i in Ω.x] # Discretise V0 (Time domain)
     mul!(v,P,V0arr)                         # Compute V0 in frequency domain
 

@@ -80,7 +80,7 @@ function solveSNFE(prob::ProbOutput1D,saveat) # Deterministic method for 1D
         end
 
         I.= [prob.I(i,ti) for i in x] # Discretise I
-        mul!(î,P,I)                    # Compute rfft of I
+        mul!(î,P,I)                   # Compute rfft of I
 
         # Compute the integral operator's at frequency domain at t_i
         @. a = @views krings[1:hN]*sv[1:hN] # Init a
@@ -125,7 +125,7 @@ function solveSNFE(prob::ProbOutput1D,saveat,ϵ,np,ξ=0.1)
     Vj  = Matrix{Float64}(undef,N*length(saveat),np) # Store the solution at saveat at path p
     V   = Vector{Float64}(undef,N)
     sv  = Vector{ComplexF64}(undef,hN*rings) # Firing Rate in Fourier space (all delays)
-    svu = Vector{Complex{Float64}}(undef,hN) # Firing Rate in Fourier space (delay u)
+    svu = Vector{ComplexF64}(undef,hN) # Firing Rate in Fourier space (delay u)
     I   = similar(V)
     v   = similar(svu) 
     î   = similar(svu) # rfft of I
@@ -146,7 +146,8 @@ function solveSNFE(prob::ProbOutput1D,saveat,ϵ,np,ξ=0.1)
         
         j = 1 # Index for tj
         @inbounds for i = 1:length(t) # Time loop
-            w = randn(hN) + im*randn(hN) # Stochastic term. w ~ N(0,1) + i*N(0,1) 
+            # w ~ N(0,1) + i*N(0,1)  stochastic term
+            w = randn(Float64,hN) + im*randn(Float64,hN)
             ti = t[i]
             # Store solution V in saveat instants
             if ti in saveat
@@ -155,7 +156,7 @@ function solveSNFE(prob::ProbOutput1D,saveat,ϵ,np,ξ=0.1)
             end
     
             I.= [prob.I(i,ti) for i in x] # Discretise I
-            mul!(î,P,I)                     # rfft I
+            mul!(î,P,I)                   # rfft I
     
             # Compute the integral operator's at frequency domain at t_i
             @. a = @views krings[1:hN]*sv[1:hN] # Init a

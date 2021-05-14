@@ -99,7 +99,8 @@ function solveSNFE(prob::ProbOutput2D,saveat,ϵ,np,ξ=0.1)
 
         j = 1 # Set index for tj
         @inbounds for i = 1:length(t) # Time loop
-            w = randn(ComplexF64,hN,N) # Stochastic term distribution N(0,1)
+            # w ~ N(0,1) + i*N(0,1)  stochastic term
+            w = randn(Float64,hN,N) + im*randn(Float64,hN,N)
             ti = t[i]
             # Store solution V in t[j] instant
             if ti in saveat
@@ -107,8 +108,8 @@ function solveSNFE(prob::ProbOutput2D,saveat,ϵ,np,ξ=0.1)
                 j += 1
             end
 
-            I.= [prob.I(i,j,ti) for j in y, i in x]
-            mul!(î,P,I)
+            I.= [prob.I(i,j,ti) for j in y, i in x] # Discretise I
+            mul!(î,P,I)                             # rfft of I
 
             # Compute the integral operator's fourier coef at t_i
             @. a = @views krings[1:hN,:]*sv[1:hN,:] # Init a

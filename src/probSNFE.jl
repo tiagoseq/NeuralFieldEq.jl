@@ -58,8 +58,6 @@ function probSNFE(in::Input1D)
 
     P    = plan_rfft(zeros(N),flags=FFTW.MEASURE) # Real IFFT operator for vector of dim N
     Pinv = plan_irfft(zeros(ComplexF64,hN),N,flags=FFTW.MEASURE) # Real IFFT operator for hN vectors
-    #P    = plan_fft(zeros(ComplexF64,N),flags=FFTW.MEASURE) # Real IFFT operator for vector of dim N
-    #Pinv = plan_ifft(zeros(ComplexF64,N),flags=FFTW.MEASURE) # Real IFFT operator for hN vectors
     # Apply rfft:  Â = P * A (==mul!(Â,P,A)). Dim of Â is N÷2+1
     # Apply irfft: A = Pinv * Â. Do not use mul! in the irfft case
 
@@ -69,7 +67,7 @@ function probSNFE(in::Input1D)
 
     # Initialization of past S(V) values (from t=-Tmax to t=0, where Tmax = rings*dt)
     # Each delay ring block (hN × N) stores the S(V) rfft with the corresp delayed value
-    sv = Vector{Complex{Float64}}(undef,Ω.rings1D*hN)
+    sv = Vector{ComplexF64}(undef,Ω.rings1D*hN)
     v0 = Vector{ComplexF64}(undef,hN)
     V0 = Vector{Float64}(undef,N)
     # Initialise V0 in time domain and v0 and sv in the Fourier domain
