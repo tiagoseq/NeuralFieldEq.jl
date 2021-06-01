@@ -1,10 +1,9 @@
 # NFE
 
-[![Build Status](https://travis-ci.com/tiagoseq/SNFE.jl.svg?branch=master)](https://travis-ci.com/tiagoseq/SNFE.jl)
-[![Build Status](https://ci.appveyor.com/api/projects/status/github/tiagoseq/SNFE.jl?svg=true)](https://ci.appveyor.com/project/tiagoseq/SNFE-jl)
-[![Coverage](https://codecov.io/gh/tiagoseq/SNFE.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/tiagoseq/SNFE.jl)
-[![Coverage](https://coveralls.io/repos/github/tiagoseq/SNFE.jl/badge.svg?branch=master)](https://coveralls.io/github/tiagoseq/SNFE.jl?branch=master)
-
+[![Build Status](https://travis-ci.com/tiagoseq/NFE.jl.svg?branch=master)](https://travis-ci.com/tiagoseq/NFE.jl)
+[![Build Status](https://ci.appveyor.com/api/projects/status/github/tiagoseq/NFE.jl?svg=true)](https://ci.appveyor.com/project/tiagoseq/NFE-jl)
+[![Coverage](https://codecov.io/gh/tiagoseq/NFE.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/tiagoseq/NFE.jl)
+[![Coverage](https://coveralls.io/repos/github/tiagoseq/NFE.jl/badge.svg?branch=master)](https://coveralls.io/github/tiagoseq/NFE.jl?branch=master)
 
 # Stochastic Neural-Field Equations
 
@@ -27,7 +26,7 @@ This package needs the previous installation of the packages FFTW.jl and Distrib
 ## Usage
 
 ```julia
-using SNFE
+using NFE
 prob = probNFE(inputs)
 sol  = solveNFE(prob)
 ```
