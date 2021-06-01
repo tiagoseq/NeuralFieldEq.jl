@@ -1,10 +1,6 @@
 using Test, NFE
 
-#@testset "prob" begin
-    
-#end
-
-@testset "solve_1D" begin
+@testset "Convergence space" begin
     # Test the convergence using an analytical bump solution
     # Laing, Troy, Gutkin, and Ermentrou - Multiple bumps in a neuronal model of working memory
     tol = 0.1
@@ -51,7 +47,7 @@ using Test, NFE
     end
 end
 
-@testset "solve_2D" begin
+@testset "Convergence time" begin
     # Test the convergence in time using an analytical solution obtained in
     # Pedro Lima and Evelyn Buckwar - Numerical Solution of the Neural Field Equation
     # in the two-dimensional case. Example 1, page B975
@@ -93,4 +89,134 @@ end
 
         @test isapprox(2.0,e_t[1,i]./e_t[2,i],atol = tol) # e_0.02/e_0.01 ≈ 2
     end    
+end
+
+@testset "Delayed NFE 2D" begin
+    # Neural Field called breather
+    # Example inspired in A. Hutt and N. Rougier - Numerical simulation scheme of one- 
+    # and two-dimensional neural fields involving space-dependent delays
+    using NFE
+    function K(x,y)
+        A = 20.0/(10.0*pi)
+        B = 14.0/(18.0*pi)
+        
+        return A*exp(-sqrt(x^2+y^2)) - B*exp(-sqrt(x^2+y^2)/3.0)
+    end
+    S(V)=convert(Float64,V>0.005) # Heavyside function H(V-Vthresh)
+    I(x,y,t)=(5.0/(32.0*pi))*exp(-(x^2+y^2)/32.0)
+
+    α  = 1.0
+    v  = 20.0
+    V0 = 0.0
+    L  = 20
+    N  = 256
+    T  = 40.0
+    n  = 400
+    tj = collect(0:0.2:T);
+    in2d = Input2D(α,v,V0,L,N,T,n,I,K,S);
+
+    prob = probNFE(in2d)
+    V    = solveNFE(prob,tj)
+    
+    # Test calable structures deterministic 2D
+    @test maximum(V(40.0)) == maximum(V(201))
+end
+
+@testset "Delayed SNFE 2D" begin
+    # Neural Field called breather
+    # Example inspired in A. Hutt and N. Rougier - Numerical simulation scheme of one- 
+    # and two-dimensional neural fields involving space-dependent delays
+    using NFE
+    function K(x,y)
+        A = 20.0/(10.0*pi)
+        B = 14.0/(18.0*pi)
+         
+        return A*exp(-sqrt(x^2+y^2)) - B*exp(-sqrt(x^2+y^2)/3.0)
+    end
+    S(V)=convert(Float64,V>0.005) # Heavyside function H(V-Vthresh)
+    I(x,y,t)=(5.0/(32.0*pi))*exp(-(x^2+y^2)/32.0)
+ 
+    α  = 1.0
+    v  = 20.0
+    V0 = 0.0
+    L  = 20
+    N  = 256
+    T  = 40.0
+    n  = 400
+    tj = collect(0:0.2:T);
+    in2d = Input2D(α,v,V0,L,N,T,n,I,K,S);
+ 
+    prob = probNFE(in2d)
+    Vsto = solveNFE(prob,tj,0.0005,15) # 15 trajectories, ϵ=0.0005, ξ=0.1 (default value)
+     
+    # Test calable structures stochastic 2D
+    # Mean sample solution
+    @test maximum(Vsto(40.0)) == maximum(Vsto(201))
+
+    # Trajectory 4
+    @test maximum(Vsto(40.0,4)) == maximum(Vsto(201,4))
+end
+
+@testset "Delayed NFE 1D" begin
+    # Example in Kulikov, Kulikova and Lima - Numerical simulation of Neural Fields
+    # with Finite Transmission Speed and Random Disturbance
+    function I(x,t)
+        σ  = 3.0   # External input parameter
+        if t <= 1.0
+            return -2.89967 + 8.0*exp(-x^2/(2.0*σ^2)) - 0.5
+        else
+            return -2.89967
+        end
+    end
+    K(x) = 2*exp(-0.08*sqrt(x^2))*(0.08*sin(pi*sqrt(x^2)/10)+cos(pi*sqrt(x^2)/10))
+    S(V) = convert(Float64,V>0.0) # Heavyside function H(V)
+    
+    α  = 1.0
+    v  = 25.0
+    V0 = 0.0
+    L  = 200
+    N  = 1000
+    T  = 10.0
+    n  = 500
+    in1D = Input1D(α,v,V0,L,N,T,n,I,K,S);
+
+    prob = probNFE(in1D)
+    V    = solveNFE(prob,[1.0,5.0,10.0])
+
+    # Test calable structures deterministic 1D
+    @test maximum(V(10.0)) == maximum(V(3))
+end
+ 
+@testset "Delayed SNFE 1D" begin
+    # Example in Kulikov, Kulikova and Lima - Numerical simulation of Neural Fields
+    # with Finite Transmission Speed and Random Disturbance
+    function I(x,t)
+        σ  = 3.0   # External input parameter
+        if t <= 1.0
+            return -2.89967 + 8.0*exp(-x^2/(2.0*σ^2)) - 0.5
+        else
+            return -2.89967
+        end
+    end
+    K(x) = 2*exp(-0.08*sqrt(x^2))*(0.08*sin(pi*sqrt(x^2)/10)+cos(pi*sqrt(x^2)/10))
+    S(V) = convert(Float64,V>0.0) # Heavyside function H(V)
+    
+    α  = 1.0
+    v  = 15.0
+    V0 = 0.0
+    L  = 200
+    N  = 1000
+    T  = 10.0
+    n  = 500
+    in1D = Input1D(α,v,V0,L,N,T,n,I,K,S);
+
+    prob = probNFE(in1D)
+    Vsto = solveNFE(prob,[1.0,5.0,10.0],0.01,50) # 50 trajectories, ϵ=0.01, ξ=0.1 (default value)
+
+    # Test calable structures stochastic 1D
+    # Mean sample solution
+    @test maximum(Vsto(10.0)) == maximum(Vsto(3))
+
+    # Trajectory 4
+    @test maximum(Vsto(10.0,4)) == maximum(Vsto(3,4))
 end
