@@ -1,4 +1,4 @@
-using Test, NFEquations
+using Test, NeuralFieldEq
 
 @testset "Convergence space" begin
     # Test the convergence using an analytical bump solution

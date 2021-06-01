@@ -1,4 +1,4 @@
-module NFEquations
+module NeuralFieldEq
 
 import Base: show
 
