@@ -1,4 +1,4 @@
-using Test, NFE
+using Test, NFEquations
 
 @testset "Convergence space" begin
     # Test the convergence using an analytical bump solution
@@ -95,7 +95,6 @@ end
     # Neural Field called breather
     # Example inspired in A. Hutt and N. Rougier - Numerical simulation scheme of one- 
     # and two-dimensional neural fields involving space-dependent delays
-    using NFE
     function K(x,y)
         A = 20.0/(10.0*pi)
         B = 14.0/(18.0*pi)
@@ -126,7 +125,6 @@ end
     # Neural Field called breather
     # Example inspired in A. Hutt and N. Rougier - Numerical simulation scheme of one- 
     # and two-dimensional neural fields involving space-dependent delays
-    using NFE
     function K(x,y)
         A = 20.0/(10.0*pi)
         B = 14.0/(18.0*pi)

@@ -1,4 +1,4 @@
-module NFE
+module NFEquations
 
 import Base: show
 
