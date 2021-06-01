@@ -1,4 +1,4 @@
-# SNFE
+# NFE
 
 [![Build Status](https://travis-ci.com/tiagoseq/SNFE.jl.svg?branch=master)](https://travis-ci.com/tiagoseq/SNFE.jl)
 [![Build Status](https://ci.appveyor.com/api/projects/status/github/tiagoseq/SNFE.jl?svg=true)](https://ci.appveyor.com/project/tiagoseq/SNFE-jl)
@@ -16,8 +16,8 @@ A numerical method written in julia to solve Stochastic Neural-Field Equations w
 To install and pre-compile the package type:
 
 ```julia
-Pkg.add("SNFE")
-using SNFE
+Pkg.add("NFE")
+using NFE
 ```
 
 ## Dependencies
@@ -28,8 +28,8 @@ This package needs the previous installation of the packages FFTW.jl and Distrib
 
 ```julia
 using SNFE
-prob = probSNFE(inputs)
-sol  = solveSNFE(prob)
+prob = probNFE(inputs)
+sol  = solveNFE(prob)
 ```
 
 ## License
