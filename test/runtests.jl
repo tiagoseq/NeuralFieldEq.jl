@@ -147,7 +147,7 @@ end
     in2d = Input2D(α,v,V0,L,N,T,n,I,K,S);
  
     prob = probNFE(in2d)
-    Vsto = solveNFE(prob,tj,0.0005,15) # 15 trajectories, ϵ=0.0005, ξ=0.1 (default value)
+    Vsto = solveNFE(prob,tj,0.0005,10) # 10 trajectories, ϵ=0.0005, ξ=0.1 (default value)
      
     # Test calable structures stochastic 2D
     # Mean sample solution
@@ -211,7 +211,7 @@ end
     in1D = Input1D(α,v,V0,L,N,T,n,I,K,S);
 
     prob = probNFE(in1D)
-    Vsto = solveNFE(prob,[1.0,5.0,10.0],0.01,50) # 50 trajectories, ϵ=0.01, ξ=0.1 (default value)
+    Vsto = solveNFE(prob,[1.0,5.0,10.0],0.01,10) # 10 trajectories, ϵ=0.01, ξ=0.1 (default value)
 
     # Test calable structures stochastic 1D
     # Mean sample solution
