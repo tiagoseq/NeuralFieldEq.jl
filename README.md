@@ -1,4 +1,4 @@
-# SNFE
+# NFE
 
 [![Build Status](https://travis-ci.com/tiagoseq/SNFE.jl.svg?branch=master)](https://travis-ci.com/tiagoseq/SNFE.jl)
 [![Build Status](https://ci.appveyor.com/api/projects/status/github/tiagoseq/SNFE.jl?svg=true)](https://ci.appveyor.com/project/tiagoseq/SNFE-jl)
