@@ -35,21 +35,27 @@ using Test, SNFE
     in005  = Input1D(α,v,V0,L,400,T,n,I,K,S);
     prob005= probSNFE(in005)
 
-    V02  = solveSNFE(prob02,tj)
-    V01  = solveSNFE(prob01,tj)
-    V005 = solveSNFE(prob005,tj)
+    V02  = solveSNFE(prob02,tj)  # Solution obtained with Δx = 0.2
+    V01  = solveSNFE(prob01,tj)  # Solution obtained with Δx = 0.1
+    V005 = solveSNFE(prob005,tj) # Solution obtained with Δx = 0.05
 
+    # e_x is the absolute difference between numerical and exact solutions
     e_x = zeros(3,length(tj))
     for i = 1:length(tj)
         e_x[1,i] = abs(V02(i)[51]-exact_solution(0))
         e_x[2,i] = abs(V01(i)[101]-exact_solution(0))
         e_x[3,i] = abs(V005(i)[201]-exact_solution(0))
-        @test isapprox(2.0,e_x[1,i]./e_x[2,i],atol = tol)
-        @test isapprox(2.0,e_x[2,i]./e_x[3,i],atol = tol)
+
+        @test isapprox(2.0,e_x[1,i]./e_x[2,i],atol = tol) # e_0.2/e_0.1  ≈ 2
+        @test isapprox(2.0,e_x[2,i]./e_x[3,i],atol = tol) # e_0.1/e_0.05 ≈ 2
     end
 end
 
 @testset "solve_2D" begin
+    # Test the convergence in time using an analytical solution obtained in
+    # Pedro Lima and Evelyn Buckwar - Numerical Solution of the Neural Field Equation
+    # in the two-dimensional case. Example 1, page B975
+    # The exact solution is V(x,t) = exp(-t)
     using SpecialFunctions
     tol = 0.1
     function I(x,y,t)
@@ -76,13 +82,15 @@ end
     prob002 = probSNFE(in002)
     prob001 = probSNFE(in001)
 
-    V002 = solveSNFE(prob002,tj)
-    V001 = solveSNFE(prob001,tj)
+    V002 = solveSNFE(prob002,tj) # Solution obtained with Δt = 0.02
+    V001 = solveSNFE(prob001,tj) # Solution obtained with Δt = 0.01
 
+    # e_t is the absolute difference between numerical and exact solutions
     e_t = zeros(2,length(tj))
     for i = 1:length(tj)
         e_t[1,i] = abs(V002(i)[101]-exp(-tj[i]))
         e_t[2,i] = abs(V001(i)[101]-exp(-tj[i]))
-        @test isapprox(2.0,e_t[1,i]./e_t[2,i],atol = tol)
+
+        @test isapprox(2.0,e_t[1,i]./e_t[2,i],atol = tol) # e_0.02/e_0.01 ≈ 2
     end    
 end
