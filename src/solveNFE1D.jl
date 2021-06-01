@@ -1,5 +1,5 @@
 @doc raw"""
-    solveSNFE(problem,saveat)
+    solveNFE(problem,saveat)
 
 # Arguments:
 - `problem::ProbOutput1D`: Output of probSNFE with Input1D 
@@ -12,14 +12,14 @@ Also return x,y and t to help plotting solutions.
 The output structure is defined with methods that return the solution at saveat instant j.
 # Examples
 ```julia-repl
-julia> sol = solveSNFE(prob1D,[5.0,20.0]) # Deterministic solution saved at t=5 and t=20
+julia> sol = solveNFE(prob1D,[5.0,20.0]) # Deterministic solution saved at t=5 and t=20
 julia> sol(2)    # Solution at time instant t=20
 julia> sol(20.0) # Same result from above
 ```
 If the problem is in 1D the solution will be a vector, if it is in 2D will be a matrix.
 
 -------------------------------------------------------------------------------------------
-    solveSNFE(problem,saveat,ϵ,np,ξ=0.1)
+    solveNFE(problem,saveat,ϵ,np,ξ=0.1)
 
 Solve stochastic version of an NFE for np trajectories, noise level ϵ and correlation ξ.
 
@@ -39,7 +39,7 @@ The output structure is defined with methods that return the path
 at saveat instant j at trajectory p and the mean solution at instant j.
 # Examples
 ```julia-repl
-julia> sol_sto = solveSNFE(prob,[5.0,20.0],0.01,100)
+julia> sol_sto = solveNFE(prob,[5.0,20.0],0.01,100)
 julia> # Stochastic solution saved at t=5,20, with noise level 0.01 simulated 100 times.
 julia> sol_sto(2,4)    # Fourth path at time instant t=20
 julia> sol_sto(20.0,4) # Same result from above
@@ -48,7 +48,7 @@ julia> sol_sto(5.0) # Same result from above
 ```
 If the problem is in 1D the solution will be a vector, if it is in 2D will be a matrix.
 """
-function solveSNFE(prob::ProbOutput1D,saveat) # Deterministic method for 1D
+function solveNFE(prob::ProbOutput1D,saveat) # Deterministic method for 1D
     P      = prob.Plan
     Pinv   = prob.PlanInv
     krings = prob.krings
@@ -108,7 +108,7 @@ function solveSNFE(prob::ProbOutput1D,saveat) # Deterministic method for 1D
 end
 
 # Stochastic method for 1D
-function solveSNFE(prob::ProbOutput1D,saveat,ϵ,np,ξ=0.1)
+function solveNFE(prob::ProbOutput1D,saveat,ϵ,np,ξ=0.1)
     P      = prob.Plan
     Pinv   = prob.PlanInv
     krings = prob.krings

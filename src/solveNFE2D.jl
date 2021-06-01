@@ -1,5 +1,5 @@
 # Deterministic method for 2D
-function solveSNFE(prob::ProbOutput2D,saveat)
+function solveNFE(prob::ProbOutput2D,saveat)
     P      = prob.Plan
     Pinv   = prob.PlanInv
     krings = prob.krings
@@ -60,7 +60,7 @@ function solveSNFE(prob::ProbOutput2D,saveat)
 end
 
 # Stochastic method for 2D
-function solveSNFE(prob::ProbOutput2D,saveat,ϵ,np,ξ=0.1)
+function solveNFE(prob::ProbOutput2D,saveat,ϵ,np,ξ=0.1)
     P      = prob.Plan
     Pinv   = prob.PlanInv
     krings = prob.krings

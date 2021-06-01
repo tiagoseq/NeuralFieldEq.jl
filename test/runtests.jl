@@ -1,4 +1,4 @@
-using Test, SNFE
+using Test, NFE
 
 #@testset "prob" begin
     
@@ -29,15 +29,15 @@ using Test, SNFE
     tj = [0.2,1.0,5.0,10.0,20.0]
 
     in02   = Input1D(α,v,V0,L,100,T,n,I,K,S);
-    prob02 = probSNFE(in02)
+    prob02 = probNFE(in02)
     in01   = Input1D(α,v,V0,L,200,T,n,I,K,S);
-    prob01 = probSNFE(in01)
+    prob01 = probNFE(in01)
     in005  = Input1D(α,v,V0,L,400,T,n,I,K,S);
-    prob005= probSNFE(in005)
+    prob005= probNFE(in005)
 
-    V02  = solveSNFE(prob02,tj)  # Solution obtained with Δx = 0.2
-    V01  = solveSNFE(prob01,tj)  # Solution obtained with Δx = 0.1
-    V005 = solveSNFE(prob005,tj) # Solution obtained with Δx = 0.05
+    V02  = solveNFE(prob02,tj)  # Solution obtained with Δx = 0.2
+    V01  = solveNFE(prob01,tj)  # Solution obtained with Δx = 0.1
+    V005 = solveNFE(prob005,tj) # Solution obtained with Δx = 0.05
 
     # e_x is the absolute difference between numerical and exact solutions
     e_x = zeros(3,length(tj))
@@ -79,11 +79,11 @@ end
     
     in002   = Input2D(α,v,V0,L,N,T,5,I,K,S);
     in001   = Input2D(α,v,V0,L,N,T,10,I,K,S);
-    prob002 = probSNFE(in002)
-    prob001 = probSNFE(in001)
+    prob002 = probNFE(in002)
+    prob001 = probNFE(in001)
 
-    V002 = solveSNFE(prob002,tj) # Solution obtained with Δt = 0.02
-    V001 = solveSNFE(prob001,tj) # Solution obtained with Δt = 0.01
+    V002 = solveNFE(prob002,tj) # Solution obtained with Δt = 0.02
+    V001 = solveNFE(prob001,tj) # Solution obtained with Δt = 0.01
 
     # e_t is the absolute difference between numerical and exact solutions
     e_t = zeros(2,length(tj))

@@ -1,5 +1,5 @@
 @doc raw"""
-    probSNFE(input)
+    probNFE(input)
 
 Set the NFE problem by discretising the domain, initialising `sv` and `k_delay`
 and building the delay rings structure.
@@ -38,7 +38,7 @@ julia> T  = 20.0  # Time span (must be float)
 julia> n  = 200   # Number of nodes to discretise time  (must be integer)
 
 julia> input = Input2D(α,v,V0,L,N,T,n,I,K,S);
-julia> prob  = probSNFE(input)
+julia> prob  = probNFE(input)
 ├─ Domain:       Ω × [0,T] = [-50.0,49.8046875]^2 × [0,20.0]
 ├─ Spatial step: dx   = 0.1953125
 ├─ Time step:    dt   = 0.1
@@ -49,7 +49,7 @@ julia> prob  = probSNFE(input)
 For the 1D scenario the procedure is the same, with exception that the functions
 `I` and `K` must be declared as `I(x,t)` and `K(x)` using `Input1D`.
 """
-function probSNFE(in::Input1D)
+function probNFE(in::Input1D)
     N  = in.N
     hN = N÷2+1 # Due the real Fourier Transform, deals with half of the dimension
 
@@ -78,7 +78,7 @@ function probSNFE(in::Input1D)
 return prob
 end
 
-function probSNFE(in::Input2D)
+function probNFE(in::Input2D)
     N  = in.N
     hN = N÷2+1 # Due the real Fourier Transform, deals with half of the dimension
 

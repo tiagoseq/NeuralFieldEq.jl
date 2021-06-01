@@ -1,6 +1,6 @@
 module AuxFunctions
 
-using LinearAlgebra: ldiv!, mul!
+using LinearAlgebra: mul!
 using FFTW: fftshift
 export peel, init!
 
