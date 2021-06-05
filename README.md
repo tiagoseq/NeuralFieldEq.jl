@@ -32,7 +32,7 @@ With respect to time discretisation, the scheme implemented is the explicit Eule
 
 ## Dependencies
 
-This package needs the previous installation of the packages `FFTW.jl`, `Distributions.jl` and `LinearAlgebra.jl`.
+`FFTW.jl`, `Distributions.jl` and `LinearAlgebra.jl`.
 
 ## Installation
 
