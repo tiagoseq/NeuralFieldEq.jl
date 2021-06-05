@@ -120,19 +120,19 @@ Considering `t=[t1,t2,t3]`, to access the deterministic solution at `t2`, the us
 
 In the stochastic case, the procedure is the same. Note that if the user only specifies the time instant, for example `Vsto(t3)`, then it will be returned the mean solution at `t3`. Whereas to choose a trajectory p at a certain time, the command should be `Vsto(t3,p)`, as an example, for the 27th trajectory at `t3`.
 
-Moreover, to help plotting the solutions, the output of the function `solveNFE` is endowed with the fields `x`, `y` (in 2D case) and `t`, corresponding to the discretised spatial and time variables, respectively.
+Moreover, to help plotting the solutions, the output of the function `solveNFE` is endowed with the fields `x`, `y` (in 2D case), and `tsaved` (instants where the solution was saved), corresponding to the discretised spatial and time variables, respectively.
 
 Considering the 1D example:
 ```julia
 using Plots
 x = V_1D.x
 
-p1 = plot(x,V_1D(1),title="Det solution at t=5") # V_1D(1) == V_1D(5.0) returns a vector
-p2 = plot(x,Vsto_1D(5.0),title="Mean solution at t=5")
-p3 = plot(x,Vsto_1D(5.0,4),title="Trajectory 4 at t=5") # V_1D(5.0,4) == V_1D(1,4)
+p1 = plot(x,V_1D(1),title="Det solution at t=5",xlabel="x",ylabel="Action potential") # V_1D(1) == V_1D(5.0) returns a vector
+p2 = plot(x,Vsto_1D(5.0),title="Mean solution at t=5",xlabel="x",ylabel="Action potential")
+p3 = plot(x,Vsto_1D(5.0,4),title="Trajectory 4 at t=5",xlabel="x",ylabel="Action potential") # V_1D(5.0,4) == V_1D(1,4)
 plot(p1,p2,p3)
 ```
-![image](https://user-images.githubusercontent.com/73851660/120900773-a7be6480-c62e-11eb-9cef-c99521bd465a.png)
+![image](https://user-images.githubusercontent.com/73851660/120902012-e1df3480-c635-11eb-97c6-c0b517d78d97.png)
 
 
 ## Examples
@@ -199,9 +199,13 @@ V    = solveNFE(prob,tj)          # Deterministic solution
 Vsto = solveNFE(prob,tj,0.001,50) # Stochastic solution
 
 ### Plots
-t = V.t
+t = V.tsaved
 maxmin_V = zeros(2,length(t))
-plot(t,V())
+for i = 1:length(t)
+    maxmin_V[1,i] = minimum(V(i))
+    maxmin_V[2,i] = maximum(V(i))
+end
+plot(t,[maxmin_V[1,:],maxmin_V[2,:]],label=[minimum maximum])
 
 # Animate the deterministic and stochastic solutions
 x = V.x
@@ -211,6 +215,9 @@ anim = @animate for i = 1:length(tj)
 end
 gif(anim, "breather.gif",fps=10)
 ```
+![image](https://user-images.githubusercontent.com/73851660/120901952-8c0a8c80-c635-11eb-8cef-ba4b397a32b2.png)
+
+![alt text](imag/breather.gif)
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
