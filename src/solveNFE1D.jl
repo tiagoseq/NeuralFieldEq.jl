@@ -2,12 +2,12 @@
     solveNFE(problem,saveat)
 
 # Arguments:
-- `problem::ProbOutput1D`: Output of probSNFE with Input1D 
-- `problem::ProbOutput2D`: Output of probSNFE with Input2D
-- `saveat::AbstractVector`: Vector containing the instants where the solution is saved at
+- `problem :: ProbOutput1D`: Output of probNFE with Input1D 
+- `problem :: ProbOutput2D`: Output of probNFE with Input2D
+- `saveat  :: AbstractVector`: Vector containing the instants where the solution is saved at
 
 Return a structure containing the solution to the NFE problem saved at saveat instants.
-Also return x,y and t to help plotting solutions.
+Also return x,y,t and saveat to help plotting solutions.
 
 The output structure is defined with methods that return the solution at saveat instant j.
 # Examples
@@ -15,6 +15,8 @@ The output structure is defined with methods that return the solution at saveat 
 julia> sol = solveNFE(prob1D,[5.0,20.0]) # Deterministic solution saved at t=5 and t=20
 julia> sol(2)    # Solution at time instant t=20
 julia> sol(20.0) # Same result from above
+julia> using Plots
+julia> plot(sol.x,sol(20.0),title="Solution at t=20")
 ```
 If the problem is in 1D the solution will be a vector, if it is in 2D will be a matrix.
 
@@ -24,16 +26,16 @@ If the problem is in 1D the solution will be a vector, if it is in 2D will be a 
 Solve stochastic version of an NFE for np trajectories, noise level ϵ and correlation ξ.
 
 # Arguments:
-- `problem::ProbOutput1D`: Output of probSNFE with Input1D 
-- `problem::ProbOutput2D`: Output of probSNFE with Input2D
-- `saveat::AbstractVector`: Vector containing the instants where the solution is saved at
-- `ϵ::Number`: Level of additive noise
-- `np::Integer`: Number of simulations
-- `ξ::AbstractFloat=0.1`: Spatial correlation parameter
+- `problem :: ProbOutput1D`: Output of probNFE with Input1D 
+- `problem :: ProbOutput2D`: Output of probNFE with Input2D
+- `saveat  :: AbstractVector`: Vector containing the instants where the solution is saved at
+- `ϵ       :: Number`: Level of additive noise
+- `np      :: Integer`: Number of simulations
+- `ξ       :: AbstractFloat=0.1`: Spatial correlation parameter
 
 Return a structure containing the mean solution and the trajectories to the
-SNFE problem saved at saveat instants.
-Also return x,y and t to help plotting solutions.
+NFE problem saved at saveat instants.
+Also return x,y,t and saveat to help plotting solutions.
 
 The output structure is defined with methods that return the path
 at saveat instant j at trajectory p and the mean solution at instant j.

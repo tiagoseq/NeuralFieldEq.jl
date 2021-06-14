@@ -52,8 +52,27 @@ end
     # Pedro Lima and Evelyn Buckwar - Numerical Solution of the Neural Field Equation
     # in the two-dimensional case. Example 1, page B975
     # The exact solution is V(x,t) = exp(-t)
-    using SpecialFunctions
     tol = 0.1
+
+    function erf(x)
+        # Method to compute the error function
+    
+        signal = sign(x) # save the sign of x
+        x = abs(x)
+    
+        # constants
+        a1 =  0.254829592
+        a2 = -0.284496736
+        a3 =  1.421413741
+        a4 = -1.453152027
+        a5 =  1.061405429
+        p  =  0.3275911
+    
+        t = 1.0/(1.0 + p*x)
+        y = 1.0 - (((((a5*t + a4)*t) + a3)*t + a2)*t + a1)*t*exp(-x*x)
+        return signal*y # erf(-x) = -erf(x)
+    end
+
     function I(x,y,t)
         λ = 8.0
         b = pi/λ*(erf(sqrt(λ)))^2 #-1 to 1

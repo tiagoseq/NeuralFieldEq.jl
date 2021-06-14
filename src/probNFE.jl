@@ -8,18 +8,18 @@ Receive as input the parameters and functions wrapped in structures `Input1D` an
 According to the space dimension the inputs are wrapped in the corresponding structure.
 The arguments of `Input1D` and `Input2D` are:
 # Arguments
-- `α::AbstractFloat`
-- `v::AbstractFloat`
-- `V0::fV0`: Can be a number or a function
-- `L::Number`
-- `N::Integer`
-- `T::AbstractFloat`
-- `n::Integer`
-- `I::fI`: External input function
-- `K::fK`: Connectivity function
-- `S::fS`: Firing rate function
+- `α  :: AbstractFloat`
+- `v  :: AbstractFloat`
+- `V0 :: fV0`: Can be a number or a function
+- `L  :: Number`
+- `N  :: Integer`
+- `T  :: AbstractFloat`
+- `n  :: Integer`
+- `I  :: fI`: External input function
+- `K  :: fK`: Connectivity function
+- `S  :: fS`: Firing rate function
 
-Return a structure to be used in solveSNFE and prints useful information about the problem.
+Return a structure to be used in solveNFE and prints useful information about the problem.
 
 # Examples
 ```julia-repl
