@@ -1,9 +1,9 @@
 # Neural Field Equations
 
-[![Build Status](https://travis-ci.com/tiagoseq/NFE.jl.svg?branch=master)](https://travis-ci.com/tiagoseq/NFE.jl)
-[![Build Status](https://ci.appveyor.com/api/projects/status/github/tiagoseq/NFE.jl?svg=true)](https://ci.appveyor.com/project/tiagoseq/NFE-jl)
-[![Coverage](https://codecov.io/gh/tiagoseq/NFE.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/tiagoseq/NFE.jl)
-[![Coverage](https://coveralls.io/repos/github/tiagoseq/NFE.jl/badge.svg?branch=master)](https://coveralls.io/github/tiagoseq/NFE.jl?branch=master)
+[![Build Status](https://travis-ci.com/tiagoseq/NeuralFieldEq.jl.svg?branch=master)](https://travis-ci.com/tiagoseq/NeuralFieldEq.jl)
+[![Build Status](https://ci.appveyor.com/api/projects/status/github/tiagoseq/NeuralFieldEq.jl?svg=true)](https://ci.appveyor.com/project/tiagoseq/NeuralFieldEq-jl)
+[![Coverage](https://codecov.io/gh/tiagoseq/NeuralFieldEq.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/tiagoseq/NeuralFieldEq.jl)
+[![Coverage](https://coveralls.io/repos/github/tiagoseq/NeuralFieldEq.jl/badge.svg?branch=master)](https://coveralls.io/github/tiagoseq/NeuralFieldEq.jl?branch=master)
 
 Deterministic equation with delay:
 
