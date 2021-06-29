@@ -164,9 +164,9 @@ T  = 20.0
 n  = 200
 
 input = Input1D(α,v,V0,L,N,T,n,extInput,kernel,firingRate);
-prob  = probSNFE(input)
-V     = solveSNFE(prob,[0.2,1.0,5.0,10.0,20.0])         # Compute the deterministic solution
-Vsto  = solveSNFE(prob,[0.2,1.0,5.0,10.0,20.0],0.05,50) # Compute the stochastic solution 50 times with ϵ = 0.05 and ξ=0.1
+prob  = probNFE(input)
+V     = solveNFE(prob,[0.2,1.0,5.0,10.0,20.0])         # Compute the deterministic solution
+Vsto  = solveNFE(prob,[0.2,1.0,5.0,10.0,20.0],0.05,50) # Compute the stochastic solution 50 times with ϵ = 0.05 and ξ=0.1
 ```
 
 ```julia
@@ -191,7 +191,7 @@ n  = 200
 
 ### Prepare the data
 input = Input2D(α,v,V0,L,N,T,n,I,K,S);
-prob  = probSNFE(input)
+prob  = probNFE(input)
 
 ### Solve the neural field equation
 tj = 0:0.2:T;
