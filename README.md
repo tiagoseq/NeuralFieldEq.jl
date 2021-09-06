@@ -1,10 +1,5 @@
 # Neural Field Equations
 
-[![Build Status](https://travis-ci.com/tiagoseq/NeuralFieldEq.jl.svg?branch=master)](https://travis-ci.com/tiagoseq/NeuralFieldEq.jl)
-[![Build Status](https://ci.appveyor.com/api/projects/status/github/tiagoseq/NeuralFieldEq.jl?svg=true)](https://ci.appveyor.com/project/tiagoseq/NeuralFieldEq-jl)
-[![Coverage](https://codecov.io/gh/tiagoseq/NeuralFieldEq.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/tiagoseq/NeuralFieldEq.jl)
-[![Coverage](https://coveralls.io/repos/github/tiagoseq/NeuralFieldEq.jl/badge.svg?branch=master)](https://coveralls.io/github/tiagoseq/NeuralFieldEq.jl?branch=master)
-
 Deterministic equation with delay:
 
 <a href="https://www.codecogs.com/eqnedit.php?latex=\alpha&space;\frac{\partial&space;V}{\partial&space;t}\left(\mathbf{x},t\right)&space;=&space;I\left(\mathbf{x},t\right)&space;-&space;V\left(\mathbf{x},t\right)&space;&plus;&space;\int_{\Omega}&space;K\left(||\mathbf{x}-\mathbf{y}||_2\right)S\big[V\left(\mathbf{y},t-d\left(\mathbf{x},\mathbf{y}\right)\right)\big]\,\,d^2\mathbf{y}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\alpha&space;\frac{\partial&space;V}{\partial&space;t}\left(\mathbf{x},t\right)&space;=&space;I\left(\mathbf{x},t\right)&space;-&space;V\left(\mathbf{x},t\right)&space;&plus;&space;\int_{\Omega}&space;K\left(||\mathbf{x}-\mathbf{y}||_2\right)S\big[V\left(\mathbf{y},t-d\left(\mathbf{x},\mathbf{y}\right)\right)\big]\,\,d^2\mathbf{y}" title="\alpha \frac{\partial V}{\partial t}\left(\mathbf{x},t\right) = I\left(\mathbf{x},t\right) - V\left(\mathbf{x},t\right) + \int_{\Omega} K\left(||\mathbf{x}-\mathbf{y}||_2\right)S\big[V\left(\mathbf{y},t-d\left(\mathbf{x},\mathbf{y}\right)\right)\big]\,\,d^2\mathbf{y}" /></a>
