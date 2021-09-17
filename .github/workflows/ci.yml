@@ -60,7 +60,7 @@ jobs:
       - run: |
           julia --project=docs -e '
             using Documenter: doctest
-            using MYPACKAGE
+            using NeuralFieldEq
             doctest(NeuralFieldEq)' # change MYPACKAGE to the name of your package
       - run: julia --project=docs docs/make.jl
         env:
