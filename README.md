@@ -1,5 +1,3 @@
-![Build](https://github.com/tiagoseq/NeuralFieldEq.jl/actions/workflows/ci.yml/badge.svg)
-
 # Neural Field Equations
 
 Deterministic equation with delay:
