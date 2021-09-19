@@ -1,4 +1,5 @@
 ![Build](https://github.com/tiagoseq/NeuralFieldEq.jl/actions/workflows/ci.yml/badge.svg)
+[![codecov](https://codecov.io/gh/tiagoseq/NeuralFieldEq.jl/branch/master/graph/badge.svg?token=UkWjnCoLUI)](https://codecov.io/gh/tiagoseq/NeuralFieldEq.jl)
 
 # Neural Field Equations
 
@@ -8,9 +9,9 @@ Deterministic equation with delay:
 
 Stochastic equation with delay:
 
-![image](https://user-images.githubusercontent.com/73851660/120825057-eb42a100-c550-11eb-9f91-c4b4401744a9.png)
+<img src="https://latex.codecogs.com/svg.image?\alpha\,&space;dV\left(\mathbf{x},t\right)&space;=&space;\left[I\left(\mathbf{x},t\right)&space;-&space;V\left(\mathbf{x},t\right)&space;&plus;&space;\int_{\Omega}K\left(||\mathbf{x}-\mathbf{y}||_2\right)S\big[V\left(\mathbf{y},t-d\left(\mathbf{x},\mathbf{y}\right)\right)\big]\,\,d^2\mathbf{y}\right]dt&plus;\epsilon&space;dW\left(\mathbf{x},t\right)" title="\alpha\, dV\left(\mathbf{x},t\right) = \left[I\left(\mathbf{x},t\right) - V\left(\mathbf{x},t\right) + \int_{\Omega}K\left(||\mathbf{x}-\mathbf{y}||_2\right)S\big[V\left(\mathbf{y},t-d\left(\mathbf{x},\mathbf{y}\right)\right)\big]\,\,d^2\mathbf{y}\right]dt+\epsilon dW\left(\mathbf{x},t\right)" />
 
-where the domain <a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;\Omega" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\inline&space;\Omega" title="\Omega" /></a> is of the form <a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;[-\frac{L}{2},\frac{L}{2}]^d,d=1,2" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\inline&space;[-\frac{L}{2},\frac{L}{2}]^d,d=1,2" title="[-\frac{L}{2},\frac{L}{2}]^d,d=1,2" /></a>.
+where the delay function is given by <img src="https://latex.codecogs.com/svg.image?d\left(\mathbf{x},\mathbf{y}\right)&space;=&space;\frac{||\mathbf{x}-\mathbf{y}||_2}{v}" title="d\left(\mathbf{x},\mathbf{y}\right) = \frac{||\mathbf{x}-\mathbf{y}||_2}{v}" /> and the domain <a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;\Omega" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\inline&space;\Omega" title="\Omega" /></a> has the form <a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;[-\frac{L}{2},\frac{L}{2}]^d,d=1,2" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\inline&space;[-\frac{L}{2},\frac{L}{2}]^d,d=1,2" title="[-\frac{L}{2},\frac{L}{2}]^d,d=1,2" /></a>.
 
 # Numerical solver for deterministic or stochastic NFE with or without delay in 1D and 2D
 
