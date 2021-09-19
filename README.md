@@ -1,9 +1,6 @@
-<<<<<<< HEAD
 ![Build](https://github.com/tiagoseq/NeuralFieldEq.jl/actions/workflows/ci.yml/badge.svg)
 [![codecov](https://codecov.io/gh/tiagoseq/NeuralFieldEq.jl/branch/master/graph/badge.svg?token=UkWjnCoLUI)](https://codecov.io/gh/tiagoseq/NeuralFieldEq.jl)
 
-=======
->>>>>>> e25569f55ec95f8763d80d17ace4ac38c43ad50c
 # Neural Field Equations
 
 Deterministic equation with delay:
