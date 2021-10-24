@@ -12,7 +12,7 @@ authors:
     orcid: 0000-0001-8579-3676
     affiliation: "1"
 affiliations:
- - name: Instituto Superior T\'{e}cnico
+ - name: Instituto Superior Técnico
    index: 1
 date: 24 October 2021
 bibliography: paper.bib
@@ -34,7 +34,7 @@ The classical quadrature methods to numerically approximate the integral present
 
 The numerical method that `NeuralFieldEq.jl` implements arose from the combination of the key idea developed by Hutt and Rougier for delayed neural fields in the stochastic scenario presented by @RiedlerChristian, where the authors proved the convergence of spectral methods applied to stochastic NFEs with additive white noise spatially correlated.
 
-`Julia` [@Julia] code when well written, designed and profiled its performance can be close to `C` or `Fortran` without sacrificing the usual features present in high-level languages. Also, the package makes use of the the multiple dispatch concept, allowing it to be flexible enough to handle NFEs in three different scenarios, 1D or 2D domains, non-delayed or delayed equations and deterministic or stochastic neural fields. These advantages were the trigger needed to develop a new user friendly and fast NFE solver, improving the `Python` solver written by @Simulator]
+`Julia` [@Julia] code when well written, designed and profiled its performance can be close to `C` or `Fortran` without sacrificing the usual features present in high-level languages. Also, the package makes use of the the multiple dispatch concept, allowing it to be flexible enough to handle NFEs in three different scenarios, 1D or 2D domains, non-delayed or delayed equations and deterministic or stochastic neural fields. These advantages were the trigger needed to develop a new user friendly and fast NFE solver, improving the `Python` solver written by @Simulator
 
 # Package usage
 
@@ -88,7 +88,7 @@ plot(x,[V_1D(1),Vsto_1D(1),Vsto_1D(1,4)],
             "Stochastic mean solution"
             "4th trajectory"])
 ```
-![Caption for example figure.\label{fig:example}](plots.png){width=80%}
+![Caption for example figure.\label{fig:example}](plots.png){width=90%}
 
 # Acknowledgements
 
