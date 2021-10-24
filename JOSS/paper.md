@@ -20,11 +20,11 @@ bibliography: paper.bib
 
 # Summary
 
-Since @hodgkinhuxley that mathematical modelling proved to be a prominent neuroscience research area. One of its main challenges is to describe phenomena like memory, perception, etc. These neurobiological processes occur in the cortex, a layer of the brain that contains approximately $10^{10}$ neurons distributed along $2500\,cm^2$ of surface area with $2.8\,mm$ of depth. Driven by such complex structure, @WilsonCowan and @Amari derived a model, Neural Field Equation (NFE), that treats the cerebral cortex as a continuum space being able to deal with these large scale dynamical neuronal patterns.
-
+Since @hodgkinhuxley that mathematical modelling proved to be a prominent neuroscience research area. One of its main challenges is to describe phenomena like memory, perception, etc. These neurobiological processes occur in the cortex, a layer of the brain that contains approximately $10^{10}$ neurons distributed along $2500\,cm^2$ of surface area with $2.8\,mm$ of depth. Driven by such complex structure, @WilsonCowan and @Amari derived a model, Neural Field Equation (NFE), that treats the cerebral cortex as a continuum space being able to deal with these large scale dynamical neuronal patterns. The equation is given by the following
 \begin{equation}\label{eq:NFE}
-  \alpha \frac{\partial V}{\partial t}\left(\mathbf{x},t\right) = I\left(\mathbf{x},t\right) - V\left(\mathbf{x},t\right) + \int K\left(||\mathbf{x}-\mathbf{y}||_2\right)S\big[V\left(\mathbf{y},t\right)\big]\,\,d^2\mathbf{y}.
+  \alpha \frac{\partial V}{\partial t}\left(\mathbf{x},t\right) = I\left(\mathbf{x},t\right) - V\left(\mathbf{x},t\right) + \int K\left(||\mathbf{x}-\mathbf{y}||_2\right)S\big[V\left(\mathbf{y},t\right)\big]\,\,d^2\mathbf{y},
 \end{equation}
+where $V(\mathbf{x},t)$ is the membrane potential at point $\mathbf{x} \in \Omega$ at time $t$, $I(\mathbf{x},t)$ is the external input applied to the neural field, $K\left(||\mathbf{x}-\mathbf{y}||_2\right)$ is the average strength of connectivity between neurons located at points $\mathbf{x}$ and $\mathbf{y}$ and $S(V)$ is the firing rate function, a function that converts the potential to the respective firing rate result. 
 
 Since then there have been endeavours to improve NFEs, from taking into account the speed of signal propagation to considering the stochastic behaviour of the neuron, these are some improvements that aim a better description of reality.
 
@@ -92,6 +92,6 @@ plot(x,[V_1D(1),Vsto_1D(1),Vsto_1D(1,4)],
 
 # Acknowledgements
 
-I want to thanks my professor Pedro Lima that kindly reviewed this article.
+A deep thank you to my professor Pedro Lima that kindly reviewed this article.
 
 # References
