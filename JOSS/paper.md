@@ -26,7 +26,7 @@ Since @hodgkinhuxley that mathematical modelling proved to be a prominent neuros
 \end{equation}
 where $V(\mathbf{x},t)$ is the membrane potential at point $\mathbf{x} \in \Omega$ at time $t$, $I(\mathbf{x},t)$ is the external input applied to the neural field, $K\left(||\mathbf{x}-\mathbf{y}||_2\right)$ is the average strength of connectivity between neurons located at points $\mathbf{x}$ and $\mathbf{y}$ and $S(V)$ is the firing rate function, a function that converts the potential to the respective firing rate result. 
 
-Since then there have been endeavours to improve NFEs, from taking into account the speed of signal propagation to considering the stochastic behaviour of the neuron, these are some improvements that aim a better description of reality.
+Since then there have been endeavours to improve NFEs, from taking into account the speed of signal propagation to considering the stochastic behaviour of the neuron, these are some improvements aiming a better description of reality.
 
 # Statement of need
 
