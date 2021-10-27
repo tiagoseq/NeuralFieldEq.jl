@@ -2,7 +2,7 @@
 
 | **Docs** | **Build Status** |
 |:----:|:----------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| Docs | ![Build](https://github.com/tiagoseq/NeuralFieldEq.jl/actions/workflows/ci.yml/badge.svg) [![codecov](https://codecov.io/gh/tiagoseq/NeuralFieldEq.jl/branch/master/graph/badge.svg?token=UkWjnCoLUI)](https://codecov.io/gh/tiagoseq/NeuralFieldEq.jl) |
+| [![docs](https://img.shields.io/badge/docs-stable-blue.svg)](https://tiagoseq.github.io/NeuralFieldEq.jl/) | ![Build](https://github.com/tiagoseq/NeuralFieldEq.jl/actions/workflows/ci.yml/badge.svg) [![codecov](https://codecov.io/gh/tiagoseq/NeuralFieldEq.jl/branch/master/graph/badge.svg?token=UkWjnCoLUI)](https://codecov.io/gh/tiagoseq/NeuralFieldEq.jl) |
 
 ## About
 
