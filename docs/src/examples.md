@@ -99,6 +99,7 @@ plot(x,[V_1D(5.0),Vsto_1D(5.0),Vsto_1D(5.0,4)],
             "Stochastic mean solution"
             "4th trajectory"])
 ```
+
 ```@raw html
 <img src='../figs/plots1D.png' width=500><br>
 ```
@@ -122,6 +123,7 @@ anim = @animate for i = 1:length(tj)
 end
 gif(anim, "bumps.gif",fps=10)
 ```
+
 ```@raw html
 <img src='../figs/bumps.gif' width=500><br>
 ```
@@ -159,9 +161,11 @@ p2 = plot(x,y,Vsto_2d(10.0,17),
           zlabel = "Action potential")
 plot(p1,p2,size=(1000,500))
 ```
+
 ```@raw html
 <img src='../figs/bumps2d.png' width=500><br>
 ```
+
 ## Examples with V0 as a function
 
 ### One-dimensional NF
@@ -205,6 +209,7 @@ plot(x,[V(10.0),sol_exact.(x)],
      xlabel="x",
      ylabel="V(x)")
 ```
+
 ```@raw html
 <img src='../figs/stasolution1d.png' width=500><br>
 ```
@@ -256,6 +261,7 @@ plot(x,y,V(),st=:surface,
      zlabel = "V(x,y)",
      title  = "Example of section 8 of Laing et al. (2002)")
 ```
+
 ```@raw html
 <img src='../figs/bumps2d_laing.png' width=500><br>
 ```
@@ -308,9 +314,11 @@ anim = @animate for i = 1:length(tj)
 end
 gif(anim, "vinf_breather.gif",fps=10)
 ```
+
 ```@raw html
 <img src='../figs/vinf_breather.gif' width=500><br>
 ```
+
 Next we use the finite velocities ``v=3`` and ``v=5``:
 ```julia
 nfe_v5  = Input2D(a,5.0,V0,L,N,80.0,1600,I,K,S);
@@ -331,9 +339,11 @@ anim = @animate for i = 1:length(tj)
 end
 gif(anim, "v5v3_breather.gif",fps=10)
 ```
+
 ```@raw html
 <img src='../figs/v5v3_breather.gif' width=500><br>
 ```
+
 As we can see, the field oscillates in the first seconds of the simulation and lower the velocity the more time the neural field oscillates. Indeed, if we consider ``v=2`` the field is unstable for all time span considered
 ```julia
 nfe_v2  = Input2D(a,2.0,V0,L,N,100.0,2000,I,K,S);
@@ -354,4 +364,8 @@ anim = @animate for i = 1:length(tj)
   plot(p1,p2,size=(900,400))
 end
 gif(anim, "v2_breather.gif",fps=10)
+```
+
+```@raw html
+<img src='../figs/v2_breather.gif' width=500><br>
 ```
