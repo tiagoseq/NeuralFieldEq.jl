@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Examples · NeuralFieldEq.jl</title><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.039/juliamono-regular.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">NeuralFieldEq.jl</a></span></div><form class="docs-search" action="../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li><a class="tocitem" href="../usage/">User guide</a></li><li class="is-active"><a class="tocitem" href>Examples</a><ul class="internal"><li><a class="tocitem" href="#Deterministic-and-stochastic-example-in-1D"><span>Deterministic and stochastic example in 1D</span></a></li><li><a class="tocitem" href="#Influence-of-delay-in-the-solutions"><span>Influence of delay in the solutions</span></a></li><li><a class="tocitem" href="#Example-in-2D-space"><span>Example in 2D space</span></a></li><li><a class="tocitem" href="#Examples-with-V0-as-a-function"><span>Examples with V0 as a function</span></a></li><li><a class="tocitem" href="#Breather-type-instabilities"><span>Breather type instabilities</span></a></li></ul></li><li><a class="tocitem" href="../apidocs/">API documentation</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Examples</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Examples</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com//blob/master/docs/src/examples.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Examples"><a class="docs-heading-anchor" href="#Examples">Examples</a><a id="Examples-1"></a><a class="docs-heading-anchor-permalink" href="#Examples" title="Permalink"></a></h1><p>In this section we will address some examples to show the versatility of the package. From setting the neural field to preparing the equation to be computed, as well handling the solutions in order to facilitate the study and interpretation of it.</p><p>The solver is divided into three steps:</p><ul><li>Introduce the parameters and functions using the structures <code>Input1D</code> or <code>Input2D</code>;</li><li>Pre-process the NFE using the function <code>probNFE</code>;</li><li>Solve the equation using the function <code>solveNFE</code> at time instants chosen by the user, with or without noise.</li></ul><p>With respect to the structures <code>Input1D</code> and <code>Input2D</code>, they are needed to wrap the inputs needed to define our NFE. They have the following order:</p><ul><li><code>α  :: AbstractFloat</code>: Decay rate</li><li><code>v  :: AbstractFloat</code>: Axonal speed</li><li><code>V0 :: fV0</code>          : Initial condition (constant or a function)</li><li><code>L  :: Number</code>       : Domain&#39;s length</li><li><code>N  :: Integer</code>      : Number of spatial nodes</li><li><code>T  :: AbstractFloat</code>: Time span</li><li><code>n  :: Integer</code>      : Number of time nodes</li><li><code>I  :: fI</code>           : External input function</li><li><code>K  :: fK</code>           : Connectivity function</li><li><code>S  :: fS</code>           : Firing rate function</li></ul><p><strong>Remark 1</strong>: The function <code>I</code>, depending on the dimensionality of the domain, has to have <code>x</code>,<code>t</code> or <code>x</code>,<code>y</code>,<code>t</code> as its arguments. Function <code>K</code> has <code>x</code> or <code>x</code>,<code>y</code>. Function <code>S</code> with <code>V</code>.</p><p>Once we define our input structure, we can now pass as input to function <code>probNFE</code>, where the NFE is prepared to be solved using the function <code>solveNFE</code>.</p><p><strong>Remark 2</strong>: Currently, to work with the non-delayed problem, the velocity to insert must satisfy the condition: <span>$v&gt;\frac{L}{\sqrt{2}\Delta t}$</span> in 2D and <span>$v&gt;\frac{L}{2\Delta t}$</span> in 1D, meaning that in practice the user must specify a big velocity (ex.: <span>$999999.0$</span>)</p><h3 id="Example:"><a class="docs-heading-anchor" href="#Example:">Example:</a><a id="Example:-1"></a><a class="docs-heading-anchor-permalink" href="#Example:" title="Permalink"></a></h3><pre><code class="language-julia hljs">nfe  = Input1D(α,v,V0,L,N,T,n,I,K,S); # Wrap the inputs in structure Input1D
+prob = probNFE(nfe)                   # Pre-process the NFE to be computed
+
+# Solve the deterministic 1D problem
+Vdet = solveNFE(prob,[t1,t2,t3]) # solution saved at t1, t2, and t3
+
+# Solve the stochastic 1D problem np times
+# ϵ level of additive noise, spatial correlation (0.1 default value)
+Vsto = solveNFE(prob,[t1,t2,t3],ϵ,np,xi=0.1) # solution saved at t1, t2, and t3</code></pre><h2 id="Deterministic-and-stochastic-example-in-1D"><a class="docs-heading-anchor" href="#Deterministic-and-stochastic-example-in-1D">Deterministic and stochastic example in 1D</a><a id="Deterministic-and-stochastic-example-in-1D-1"></a><a class="docs-heading-anchor-permalink" href="#Deterministic-and-stochastic-example-in-1D" title="Permalink"></a></h2><p>This example was adapted from [Kulikov et al. (2019)]</p><pre><code class="language-julia hljs">using NeuralFieldEq
+# 1D neural field
+# Define function inputs, I, K and S
+I(x,t) = -2.89967 + 8.0*exp(-x^2/(2.0*3^2)) - 0.5
+K(x) = 2*exp(-0.08*sqrt(x^2))*(0.08*sin(pi*sqrt(x^2)/10)+cos(pi*sqrt(x^2)/10))
+S(V) = V&lt;=0.0 ? 0.0 : 1.0 # Heaviside function 
+
+# Define parameters
+a  = 1.0  # Constant decay      
+v  = 5.0  # Finite axonal speed
+V0 = 0.0  # Initial condition
+L  = 100  # Domain length
+N  = 512  # Number of nodes to discretise space
+T  = 10.0 # Time span
+n  = 100  # Number of nodes to discretise time
+
+nfe_1d = Input1D(a,v,V0,L,N,T,n,I,K,S); # Wrap inputs in structure Input1D</code></pre><p>The second step is to use the function <code>probNFE</code> to prepare the inputs to solve the equation and finally computing the solution using <code>solveNFE</code>.</p><pre><code class="language-julia hljs">tj   = 0:0.2:T;          # Choose instants where the sol is saved
+prob = probNFE(nfe_1d)   # Prepare the data to solve the NFE
+V    = solveNFE(prob,tj) # Solve the equation and save at tj</code></pre><p>Also, the function <code>probNFE</code> prints useful information such as spatial and time step as well as the number of delay rings (if <span>$v&gt;\frac{L}{2\Delta t}$</span> the number of rings is <span>$1$</span>).</p><p>If we want to address the stochastic case we simply need to type extra arguments in <code>solveNFE</code>.</p><pre><code class="language-julia hljs"># Solve the stochastic equation 100 times
+# Noise magnitude: eps = 0.05. Correlation coefficient: xi = 0.1
+Vsto  = solveNFE(prob,tj,0.05,100)      # xi default value 0.1
+Vsto2 = solveNFE(prob,tj,0.05,100,0.15) # xi = 0.15</code></pre><p>The variables obtained with <code>solveNFE</code> are equipped with practical features to handle the solutions and create plots.</p><pre><code class="language-julia hljs">using Plots
+V(1.0)      # Returns the deterministic solution at t=1.0
+Vsto(10.0)  # Returns the mean stochastic solution at t=10.0
+Vsto(5.0,4) # Returns the 4th trajectory at t=5.0
+
+x = V.x # Returns the spatial vector
+plot(x,[V_1D(5.0),Vsto_1D(5.0),Vsto_1D(5.0,4)],
+     xlabel=&quot;x&quot;,
+     ylabel=&quot;Action potential&quot;,
+     label=[&quot;Deterministic solution&quot;
+            &quot;Stochastic mean solution&quot;
+            &quot;4th trajectory&quot;])</code></pre><img src='../figs/plots1D.png' width=500><br><h2 id="Influence-of-delay-in-the-solutions"><a class="docs-heading-anchor" href="#Influence-of-delay-in-the-solutions">Influence of delay in the solutions</a><a id="Influence-of-delay-in-the-solutions-1"></a><a class="docs-heading-anchor-permalink" href="#Influence-of-delay-in-the-solutions" title="Permalink"></a></h2><p>Considering the previous example, we will now compare the delayed solution with the non-delayed one.</p><pre><code class="language-julia hljs"># Setting the non-delayed neural field
+v_inf = 9999999.0
+
+nfe_1d_vinf = Input1D(a,v_inf,V0,L,N,T,n,I,K,S);
+prob_vinf   = probNFE(nfe_1d_vinf)
+V_vinf      = solveNFE(prob_vinf,tj)
+
+# Animate the delayed and non-delayed solutions
+anim = @animate for i = 1:length(tj)
+  p1 = plot(x,V(i),title=&quot;v=5. t=$(tj[i])&quot;,ylims=(-9.3,16.7))
+  p2 = plot(x,V_vinf(i),title=&quot;v=inf. t=$(tj[i])&quot;,ylims=(-9.3,16.7))
+  plot(p1,p2,size=(900,400))
+end
+gif(anim, &quot;bumps.gif&quot;,fps=10)</code></pre><img src='../figs/bumps.gif' width=500><br><h2 id="Example-in-2D-space"><a class="docs-heading-anchor" href="#Example-in-2D-space">Example in 2D space</a><a id="Example-in-2D-space-1"></a><a class="docs-heading-anchor-permalink" href="#Example-in-2D-space" title="Permalink"></a></h2><p>This is a two-dimensional extension of the previous example, adapted from [Kulikova et al. (2019)]</p><pre><code class="language-julia hljs"># Example with the same parameters as in 1D
+# In 2D we have 2 spacial variables, x and y
+I_2d(x,y,t) = -2.89967 + 8.0*exp(-x^2-y^2/(2.0*3^2)) - 0.5
+K_2d(x,y)   = 2*exp(-0.08*sqrt(x^2+y^2))*(0.08*sin(pi*sqrt(x^2+y^2)/10)+cos(pi*sqrt(x^2+y^2)/10))
+
+nfe_2d  = Input2D(a,v,V0,L,N,T,n,I_2d,K_2d,S);
+prob_2d = probNFE(nfe_2d)
+
+# Compute the two-dimensional solutions
+V_2d    = solveNFE(prob_2d,tj)         # deterministic
+Vsto_2d = solveNFE(prob_2d,tj,0.1,20)  # stochastic
+
+# Plotting
+x = V_2d.x; # Returns the spatial vector in x direction
+y = V_2d.y; # Returns the spatial vector in y direction
+
+p1 = plot(x,y,V_2d(10.0),
+          title  = &quot;Deterministic equation at t=10&quot;,
+          xlabel = &quot;x&quot;,
+          ylabel = &quot;y&quot;,
+          zlabel = &quot;Action potential&quot;)
+
+p2 = plot(x,y,Vsto_2d(10.0,17),
+          title  = &quot;17th path with eps=0.1 and xi=0.1 at t=10&quot;,
+          xlabel = &quot;x&quot;,
+          ylabel = &quot;y&quot;,
+          zlabel = &quot;Action potential&quot;)
+plot(p1,p2,size=(1000,500))</code></pre><img src='../figs/bumps2d.png' width=500><br><h2 id="Examples-with-V0-as-a-function"><a class="docs-heading-anchor" href="#Examples-with-V0-as-a-function">Examples with V0 as a function</a><a id="Examples-with-V0-as-a-function-1"></a><a class="docs-heading-anchor-permalink" href="#Examples-with-V0-as-a-function" title="Permalink"></a></h2><h3 id="D-example"><a class="docs-heading-anchor" href="#D-example">1D example</a><a id="D-example-1"></a><a class="docs-heading-anchor-permalink" href="#D-example" title="Permalink"></a></h3><p>This example was taken from section 2 of <a href="http://www.math.pitt.edu/~bard/pubs/multibump.pdf">Laing et al. (2002)</a> where an analytical stationary solution was derived.</p><pre><code class="language-julia hljs">using NeuralFieldEq, Plots
+
+function W(x)
+    if x != 0
+        return (((1-exp(-1.8*abs(x)))*(3.5/1.8) + (-1+exp(-1.52*abs(x)))*(3/1.52))*x)/abs(x)
+    else
+        return 0.0
+    end
+end
+a2   = 2.28978
+sol_exact(x) = W(x) - W(x-a2)
+
+extInput(x,t) = 0.0
+kernel(x)     = 3.5*exp(-1.8*abs(x))-3*exp(-1.52*abs(x))
+firingRate(V) = V&lt;=0.0 ? 0.0 : 1.0
+
+a  = 1.0
+v  = 90000.0   # This velocity satisfies the condition v&gt;L/(2*Δt), thus we are considering the non-delayed problem
+V0 = sol_exact # The initial condition, V0, is a function
+L  = 20
+N  = 512
+T  = 20.0
+n  = 200
+
+input = Input1D(a,v,V0,L,N,T,n,extInput,kernel,firingRate);
+prob  = probNFE(input)
+V     = solveNFE(prob,[0.2,1.0,5.0,10.0,20.0])         # Compute the deterministic solution
+
+# Plotting
+x = V.x
+plot(x,[V(10.0),sol_exact.(x)],
+     labels=[&quot;Numerical solution&quot; &quot;Exact solution&quot;],
+     legend=:bottomright,
+     title=&quot;Stationary problem at t=10&quot;,
+     xlabel=&quot;x&quot;,
+     ylabel=&quot;V(x)&quot;)</code></pre><img src='../figs/stasolution1d.png' width=500><br><h3 id="D-example-2"><a class="docs-heading-anchor" href="#D-example-2">2D example</a><a class="docs-heading-anchor-permalink" href="#D-example-2" title="Permalink"></a></h3><p>In this example we will adapt a 2D neural field taken from section 8 of <a href="http://www.math.pitt.edu/~bard/pubs/multibump.pdf">Laing et al. (2002)</a>, where the initial condition is not a constant, but a function of <span>$x$</span> and <span>$y$</span>, more specifically in the following form:</p><p class="math-container">\[\begin{cases}
+    V_0(x,y) = 5\,\, \text{if} -4&lt;x&lt;5.6 \land -12&lt;y&lt;4 \\
+    V_0(x,y) = 0\,\, \text{otherwise.}
+\end\]</p><pre><code class="language-julia hljs">using NeuralFieldEq, Plots
+
+# Define functions
+I(x,y,t) = 0
+W(x,y)   = exp(-0.45*sqrt(x^2+y^2))*(0.45*sin(sqrt(x^2+y^2))+cos(sqrt(x^2+y^2))) # Connectivity function
+f(V)     = 2.0*exp(-0.1/((V-1.5)^2))*convert(Float64,V&gt;1.5) # Firing rate function (an exponential times a heaviside)
+
+# Define parameters
+a  = 1.0     # Temporal decay of the synapse
+v  = 99999.0 # Finite axonal speed
+L  = 40      # Domain length. [-20,20]
+N  = 50      # Number of nodes to discretise space
+T  = 4.0     # Time span
+n  = 200     # Number of nodes to discretise time
+tj = [1.0,2.0,3.0,4.0]
+
+# Initial condition
+function V_0(x,y)
+    if (x &gt; -4.0 &amp;&amp; x &lt; 5.6) &amp;&amp; (y &gt; -12.0 &amp;&amp; y &lt; 4.0)
+        return 5.0
+    else
+        return 0.0
+    end
+end
+
+nfe  = Input2D(a,v,V_0,L,N,T,n,I,W,f);
+prob = probNFE(nfe)
+V    = solveNFE(prob,tj)
+
+# Plotting
+x = V.x
+y = V.y
+plot(x,y,V(),st=:surface,
+     xlabel = &quot;x&quot;,
+     ylabel = &quot;y&quot;,
+     zlabel = &quot;V(x,y)&quot;,
+     title  = &quot;Example of section 8 of Laing et al. (2002)&quot;)</code></pre><img src='../figs/bumps2d_laing.png' width=500><br><h2 id="Breather-type-instabilities"><a class="docs-heading-anchor" href="#Breather-type-instabilities">Breather type instabilities</a><a id="Breather-type-instabilities-1"></a><a class="docs-heading-anchor-permalink" href="#Breather-type-instabilities" title="Permalink"></a></h2><p>The authors in <a href="https://hal.inria.fr/hal-00872132/document">Hutt &amp; Rougier 2013</a> successfully induced breather instabilities using only the axonal speed. Here we use an adapted neural field in order to induce the same type of instabilities.</p><p>First is presented a stable field (with <span>$v=\infty$</span>):</p><pre><code class="language-julia hljs">using NeuralFieldEq, Plots
+
+I(x,y,t) = (5.0/(32.0*pi))*exp(-(x^2+y^2)/32.0)
+function K(x,y)
+    A = 20.0/(10.0*pi)
+    B = 14.0/(18.0*pi)
+    return A*exp(-sqrt(x^2+y^2)) - B*exp(-sqrt(x^2+y^2)/3.0)
+end
+S(V) = V&lt;=0.005 ? 0.0 : 1.0 # H(V-th)
+
+a  = 1.0
+v  = 999999.0
+V0 = 0.0
+L  = 20
+N  = 256
+T  = 10.0
+n  = 200
+
+nfe  = Input2D(a,v,V0,L,N,T,n,I,K,S);
+prob = probNFE(nfe)
+
+# Solve the neural field equation
+tj = 0:0.2:T;
+V  = solveNFE(prob,tj)
+
+# Plots
+minmax_V = zeros(2,length(tj))
+for i = 1:length(tj)
+    minmax_V[1,i] = minimum(V(i))
+    minmax_V[2,i] = maximum(V(i))
+end
+
+# Animate solution
+x = V.x
+y = V.y
+anim = @animate for i = 1:length(tj)
+  p1 = plot(x,y,V(i),st=:surface,title=&quot;t=$(tj[i])&quot;,color=:balance,zlims=(-0.43,0.54))
+  p2 = plot(tj,[minmax_V[1,i],minmax_V[2,i]],label=[minimum maximum])
+  plot(p1,p2)
+end
+gif(anim, &quot;vinf_breather.gif&quot;,fps=10)</code></pre><img src='../figs/vinf_breather.gif' width=500><br><p>Next we use the finite velocities <span>$v=3$</span> and <span>$v=5$</span>:</p><pre><code class="language-julia hljs">nfe_v5  = Input2D(a,5.0,V0,L,N,80.0,1600,I,K,S);
+nfe_v3  = Input2D(a,3.0,V0,L,N,80.0,1600,I,K,S);
+prob_v5 = probNFE(nfe_v5)
+prob_v3 = probNFE(nfe_v3)
+
+# Solve the neural field equation
+V_v5 = solveNFE(prob_v5,tj)
+V_v3 = solveNFE(prob_v3,tj)
+
+# Plotting
+# Animate the delayed solutions
+anim = @animate for i = 1:length(tj)
+  p1 = plot(x,y,V_v5(i),st=:surface,title=&quot;v=5. t=$(tj[i])&quot;,color=:balance,zlims=(-2.8,0.95))
+  p2 = plot(x,y,V_v3(i),st=:surface,title=&quot;v=3. t=$(tj[i])&quot;,color=:balance,zlims=(-2.8,0.95))
+  plot(p1,p2)
+end
+gif(anim, &quot;v5v3_breather.gif&quot;,fps=10)</code></pre><img src='../figs/v5v3_breather.gif' width=500><br><p>As we can see, the field oscillates in the first seconds of the simulation and lower the velocity the more time the neural field oscillates. Indeed, if we consider <span>$v=2$</span> the field is unstable for all time span considered</p><pre><code class="language-julia hljs">nfe_v2  = Input2D(a,2.0,V0,L,N,100.0,2000,I,K,S);
+prob_v2 = probNFE(nfe_v2)
+V_v2    = solveNFE(prob_v2,tj)
+
+# Plotting
+minmax_Vv2 = zeros(2,length(tj))
+for i = 1:length(tj)
+    minmax_Vv2[1,i] = minimum(V_v2(i))
+    minmax_Vv2[2,i] = maximum(V_v2(i))
+end
+
+# Animate solution
+anim = @animate for i = 1:length(tj)
+  p1 = plot(x,y,V_v2(i),st=:surface,title=&quot;t=$(tj[i])&quot;,color=:balance,zlims=(-3.6,0.95))
+  p2 = plot(tj,[minmax_Vv2[1,i],minmax_Vv2[2,i]],label=[minimum maximum])
+  plot(p1,p2,size=(900,400))
+end
+gif(anim, &quot;v2_breather.gif&quot;,fps=10)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../usage/">« User guide</a><a class="docs-footer-nextpage" href="../apidocs/">API documentation »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.10 on <span class="colophon-date" title="Wednesday 27 October 2021 12:56">Wednesday 27 October 2021</span>. Using Julia version 1.5.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

@@ -2,23 +2,25 @@
     solveNFE(problem,saveat)
 
 # Arguments:
-- `problem :: ProbOutput1D`: Output of probNFE with Input1D 
-- `problem :: ProbOutput2D`: Output of probNFE with Input2D
+- `problem :: ProbOutput1D`: Output of probNFE using Input1D structure
+- `problem :: ProbOutput2D`: Output of probNFE using Input2D structure
 - `saveat  :: AbstractVector`: Vector containing the instants where the solution is saved at
 
-Return a structure containing the solution to the NFE problem saved at saveat instants.
-Also return x,y,t and saveat to help plotting solutions.
+Returns a structure containing the solution to the NFE saved at saveat instants.
+The structure has `x`, `y` and `saveat` as fields to help plotting the solution.
 
-The output structure is defined with methods that return the solution at saveat instant j.
 # Examples
 ```julia-repl
-julia> sol = solveNFE(prob1D,[5.0,20.0]) # Deterministic solution saved at t=5 and t=20
-julia> sol(2)    # Solution at time instant t=20
-julia> sol(20.0) # Same result from above
+julia> # 2D example
+julia> saveat = [5.0,20.0]
+julia> sol    = solveNFE(prob,saveat) # Deterministic solution saved at t=5 and t=20
+julia> sol(20.0) # Solution at t=20
+julia> x = sol.x # Spatial vector in x direction 
+julia> y = sol.y # Spatial vector in y direction
 julia> using Plots
-julia> plot(sol.x,sol(20.0),title="Solution at t=20")
+julia> plot(x,y,sol(20.0),st=:surface,title="Solution at t=20") # Surface plot of sol(20.0)
 ```
-If the problem is in 1D the solution will be a vector, if it is in 2D will be a matrix.
+If the neural field is in 1D/2D, the solution is a vector/matrix.
 
 -------------------------------------------------------------------------------------------
     solveNFE(problem,saveat,ϵ,np,ξ=0.1)
@@ -33,22 +35,16 @@ Solve stochastic version of an NFE for np trajectories, noise level ϵ and corre
 - `np      :: Integer`: Number of simulations
 - `ξ       :: AbstractFloat=0.1`: Spatial correlation parameter
 
-Return a structure containing the mean solution and the trajectories to the
-NFE problem saved at saveat instants.
-Also return x,y,t and saveat to help plotting solutions.
+Returns a structure containing the mean solution and the trajectories of the
+NFE saved at saveat instants.
 
-The output structure is defined with methods that return the path
-at saveat instant j at trajectory p and the mean solution at instant j.
 # Examples
 ```julia-repl
-julia> sol_sto = solveNFE(prob,[5.0,20.0],0.01,100)
 julia> # Stochastic solution saved at t=5,20, with noise level 0.01 simulated 100 times.
-julia> sol_sto(2,4)    # Fourth path at time instant t=20
-julia> sol_sto(20.0,4) # Same result from above
-julia> sol_sto(1)   # Mean solution at time instant t=20
-julia> sol_sto(5.0) # Same result from above
+julia> sol_sto = solveNFE(prob,saveat,0.01,100)
+julia> sol_sto(20.0,4) # 4th path at t=20
+julia> sol_sto(5.0)    # Mean solution at t=20
 ```
-If the problem is in 1D the solution will be a vector, if it is in 2D will be a matrix.
 """
 function solveNFE(prob::ProbOutput1D,saveat) # Deterministic method for 1D
     P      = prob.Plan

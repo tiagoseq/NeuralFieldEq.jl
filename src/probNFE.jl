@@ -1,13 +1,11 @@
 @doc raw"""
-    probNFE(input)
+    probNFE(neuralFieldEquation)
 
-Set the NFE problem by discretising the domain, initialising `sv` and `k_delay`
-and building the delay rings structure.
+Pre-process the neural field equation in order to be computed by `solveNFE`
 
-Receive as input the parameters and functions wrapped in structures `Input1D` and `Input2D`.
-According to the space dimension the inputs are wrapped in the corresponding structure.
-The arguments of `Input1D` and `Input2D` are:
-# Arguments
+`probNFE` receives as input the parameters and functions wrapped in the structures `Input1D` and `Input2D`.
+The arguments of `Input1D` and `Input2D` are in the following order:
+# Input1D/Input2D arguments
 - `α  :: AbstractFloat`
 - `v  :: AbstractFloat`
 - `V0 :: fV0`: Can be a number or a function
@@ -19,26 +17,28 @@ The arguments of `Input1D` and `Input2D` are:
 - `K  :: fK`: Connectivity function
 - `S  :: fS`: Firing rate function
 
-Return a structure to be used in solveNFE and prints useful information about the problem.
+Declaration of `I`, `K` and `S` functions:
+- The function I must have the arguments: in 1D - `I(x,t)`, in 2D - `I(x,y,t)`
+- The function K must have the arguments: in 1D - `K(x)`, in 2D - `K(x,y)`
+- The function S must have the arguments: in 1D/2D - `S(V)`
 
 # Examples
 ```julia-repl
 julia> # 2D example
-julia> I(x,y,t) = 0                      # External inut
-julia> # In 2D even if I doesn't depend on x,y and t, these three arguments are mandatory
+julia> I(x,y,t) = 1                      # External input
 julia> K(x,y)   = exp(-x^2+y^2)          # Connectivity function
 julia> S(V)     = convert(Float64,V>0.0) # Firing rate. Heavyside function H(V)
 
-julia> α  = 1.0   # Constant decay      (must be float)
-julia> v  = 20.0  # Finite axonal speed (must be float)
-julia> V0 = 0.0   # Initial condition (can be a constant or a function)
-julia> L  = 100   # Domain length     (can be a integer or float)
-julia> N  = 512   # Number of nodes to discretise space (must be integer)
-julia> T  = 20.0  # Time span (must be float)
-julia> n  = 200   # Number of nodes to discretise time  (must be integer)
+julia> α  = 1.0  # Constant decay
+julia> v  = 20.0 # Finite axonal speed
+julia> V0 = 0.0  # Initial condition
+julia> L  = 100  # Domain length
+julia> N  = 512  # Number of nodes to discretise space
+julia> T  = 20.0 # Time span
+julia> n  = 200  # Number of nodes to discretise time
 
-julia> input = Input2D(α,v,V0,L,N,T,n,I,K,S);
-julia> prob  = probNFE(input)
+julia> nf   = Input2D(α,v,V0,L,N,T,n,I,K,S);
+julia> prob = probNFE(nf)
 ├─ Domain:       Ω × [0,T] = [-50.0,49.8046875]^2 × [0,20.0]
 ├─ Spatial step: dx   = 0.1953125
 ├─ Time step:    dt   = 0.1
@@ -46,8 +46,7 @@ julia> prob  = probNFE(input)
 ├─ Delay rings:  umax = 36
 ```
 
-For the 1D scenario the procedure is the same, with exception that the functions
-`I` and `K` must be declared as `I(x,t)` and `K(x)` using `Input1D`.
+For 1D domains the procedure is the same but the inputs are wrapped using `Input1D`.
 """
 function probNFE(in::Input1D)
     N  = in.N
