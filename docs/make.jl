@@ -13,4 +13,4 @@ makedocs(
                 "API documentation" => "apidocs.md"
                ])
 
-deploydocs(repo="github.com/tiagoseq/NeuralFieldEq.jl",)
+deploydocs(repo="github.com/tiagoseq/NeuralFieldEq.jl.git",)
