@@ -24,9 +24,9 @@ With respect to the structures `Input1D` and `Input2D`, they are needed to wrap 
 
 Once we define our input structure, we can now pass as input to function `probNFE`, where the NFE is prepared to be solved using the function `solveNFE`.
 
-**Remark 2**: Currently, to work with the non-delayed problem, the velocity to insert must satisfy the condition: ``v>\frac{L}{\sqrt{2}\Delta t}`` in 2D and ``v>\frac{L}{2\Delta t}`` in 1D, meaning that in practice the user must specify a big velocity (ex.: ``999999.0``)
+**Remark 2**: Currently, to work with the non-delayed problem, the velocity to insert must satisfy the condition: ``v>\frac{L}{\sqrt{2}\Delta t}`` in 2D and ``v>\frac{L}{2\Delta t}`` in 1D, meaning that in practice the user must specify a big velocity (ex.: ``999999.0``).
 
-### Example:
+Below is shown an abstract example of the `NeuralFieldEq.jl` usage:
 ```julia
 nfe  = Input1D(α,v,V0,L,N,T,n,I,K,S); # Wrap the inputs in structure Input1D
 prob = probNFE(nfe)                   # Pre-process the NFE to be computed
@@ -43,11 +43,11 @@ Vsto = solveNFE(prob,[ti,tj,tk],ϵ,np,xi=0.1) # solution saved at ti, tj, and tk
 
 Considering `t=[ti,tj,tk]`, to access the deterministic solution at `tj`, the user must type `V(tj)` or `V(2)` (the index of `tj` is 2).
 
-In the stochastic case, the procedure is the same. Note that if the user only specifies the time instant, for example `Vsto(tk)`(`== Vsto(3)`), then it will be returned the **mean solution** at `tk`. Whereas to choose a **trajectory** `p` at time `tk`, the command should be `Vsto(tk,p)`(`== Vsto(3,p)`) for the `p` trajectory at `tk`.
+In the stochastic case, the procedure is the same. Note that if the user only specifies the time instant, for example `Vsto(tk) # == Vsto(3)`, then it will be returned the **mean solution** at `tk`. Whereas to choose a **trajectory** `p` at time `tk`, the command should be `Vsto(tk,p) # == Vsto(3,p)` for the `p` trajectory at `tk`.
 
 Moreover, to help plotting the solutions, the output of the function `solveNFE` is endowed with the fields `x`, `y` (in 2D case), and `tsaved` (instants where the solution was saved), corresponding to the discretised spatial and time variables, respectively.
 
-## Deterministic and stochastic example in 1D
+## Example of deterministic and stochastic NF in 1D
 
 This example was adapted from [Kulikov et al. (2019)]
 ```julia
@@ -104,7 +104,7 @@ plot(x,[V_1D(5.0),Vsto_1D(5.0),Vsto_1D(5.0,4)],
 <img src='../figs/plots1D.png' width=500><br>
 ```
 
-## Influence of delay in the solutions
+## NF with finite propagation speed
 
 Considering the previous example, we will now compare the delayed solution with the non-delayed one.
 ```julia
@@ -128,7 +128,7 @@ gif(anim, "bumps.gif",fps=10)
 <img src='../figs/bumps.gif' width=500><br>
 ```
 
-## Example in 2D space
+## Example of deterministic and stochastic NF in 2D
 
 This is a two-dimensional extension of the previous example, adapted from [Kulikova et al. (2019)]
 ```julia
@@ -268,9 +268,9 @@ plot(x,y,V(),st=:surface,
 
 ## Breather type instabilities
 
-The authors in [Hutt & Rougier 2013](https://hal.inria.fr/hal-00872132/document) successfully induced breather instabilities using only the axonal speed. Here we use an adapted neural field in order to induce the same type of instabilities.
+The authors in [Hutt & Rougier 2013](https://hal.inria.fr/hal-00872132/document) successfully induced in a NF breather type instabilities using only the axonal speed. Here we use an adapted NFE in order to induce the same type of instabilities.
 
-First is presented a stable field (with ``v=\infty``):
+First we address a stable field (with ``v=\infty``):
 ```julia
 using NeuralFieldEq, Plots
 
