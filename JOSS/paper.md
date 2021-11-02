@@ -87,27 +87,6 @@ plot(x,[V(1),Vsto(1),Vsto(1,4)])
 ```
 ![Caption for example figure.\label{fig:example}](plots1D.png){width=90%}
 
-Or a 2D neural field presented by @HuttRougier:2.
-```julia
-using NeuralFieldEq, Plots
-I(x,y,t) = (5.0/(32.0*pi))*exp(-(x^2+y^2)/32.0)
-K(x,y) = (20.0/(10.0*pi))*exp(-sqrt(x^2+y^2)) - (14.0/(18.0*pi))*exp(-sqrt(x^2+y^2)/3.0)
-S(V) = V<=0.005 ? 0.0 : 1.0 # H(V-0.005)
-nfe  = Input2D(1.0,2.0,0.0,20,256,300.0,6000,I,K,S);
-prob = probNFE(nfe)
-tj   = 0:0.2:T;
-V    = solveNFE(prob,tj)
-
-# Plotting
-minmax_V = zeros(2,length(tj))
-for i = 1:length(tj)
-    minmax_V[1,i] = minimum(V(i))
-    minmax_V[2,i] = maximum(V(i))
-end
-plot(tj,[minmax_V[1,:],minmax_V[2,:]],label=[minimum maximum])
-```
-![Caption for example figure.\label{fig:example}](plots2D.png){width=90%}
-
 # Acknowledgements
 
 A deep thank you to my professor Pedro Lima that kindly reviewed this article.
