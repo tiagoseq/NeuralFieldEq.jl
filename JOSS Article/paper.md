@@ -14,7 +14,7 @@ authors:
 affiliations:
  - name: Instituto Superior Técnico - University of Lisbon
    index: 1
-date: 24 October 2021
+date: 02 November 2021
 bibliography: paper.bib
 ---
 
@@ -42,14 +42,12 @@ The performance of `Julia` [@Julia] code, when well written, designed and profil
 
 The solver is divided into three steps:
 - Introduce the parameters and functions using the structures `Input1D` or `Input2D`, depending on the domain dimension;
-  **Remark 1**. Function `I`, depending on the dimensionality of the domain, has to have `x`,`t` or `x`,`y`,`t` as its arguments. Function `K` has `x` or `x`,`y`. And function `S` with `V`.
-  **Remark 2**. Currently, to work with the non-delayed problem, the velocity to insert must satisfy the condition: $v>\frac{L}{\sqrt{2}\Delta t}$ in 2D and $v>\frac{L}{2\Delta t}$ in 1D.
 - Pre-process the NFE using the function `probNFE`;
 - Solve the equation using the function `solveNFE` at time instants chosen by the user, with or without noise.
 
 Once the solution is computed, we can access it at the previously selected instants. Considering `t=[ti,tj,tk]`, to get the solution at `tj`: `V(tj)` or `V(2)`. In the stochastic case, `Vsto(tj)` stands for the mean solution at `tj`, while for the trajectory `p` is `Vsto(tj,p)`. Also, the user can obtain a specific point in space and time, let `x=[x1,x2,...,xN]` be the discretised space vector, `V(x2,tj)` is the solution's value at `(x2,tj)`.
 
-To illustrate the code usage we will discuss an one-dimensional example taken from @Kulikov1D.
+To illustrate the code usage we will show an example taken from @Kulikov1D.
 ```julia
 using NeuralFieldEq, Plots
 # 1D neural field
@@ -98,7 +96,7 @@ plot(x,[V(1),Vsto(1),Vsto(1,4)],
 ```
 ![Caption for example figure.\label{fig:example}](plots1D.png){width=90%}
 
-Or a 2D neural field presented by @HuttRougier:2
+Or a 2D neural field presented by @HuttRougier:2.
 ```julia
 using NeuralFieldEq, Plots
 
