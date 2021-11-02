@@ -222,7 +222,7 @@ In this example we will adapt a 2D neural field taken from section 8 of [Laing e
     \begin{cases}
         V_0(x,y) = 5\,\, \text{if} -4<x<5.6 \land -12<y<4 \\
         V_0(x,y) = 0\,\, \text{otherwise.}
-    \end
+    \end{cases}
 \end{equation}
 ```
 ```julia
