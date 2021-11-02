@@ -34,30 +34,29 @@ Since then there have been endeavours to improve NFEs. For example, depending on
 
 The classical quadrature methods to numerically approximate the integral present in \autoref{eq:NFE} have a complexity of $\mathcal{O}^{2}$ or $\mathcal{O}^{4}$ in 1D or 2D domains, respectively, making these methods unsuitable for efficient numerical approximations of NFEs. Although the this integral can be seen as a convolution, when considering finite signal velocities is no longer the case. @HuttRougier:2 proposed a novel numerical scheme that addresses the delayed version of \autoref{eq:NFE} that rewrites the integral into a convolutional form in order to apply a Fourier Transform to it, implying a substantially speed-up when computing delayed NFEs.
 
-The numerical method that `NeuralFieldEq.jl` implements arose from the combination of the key idea developed by Hutt and Rougier for delayed neural fields in the stochastic scenario presented by @RiedlerChristian, where the authors proved the convergence of spectral methods applied to stochastic NFEs with additive white noise spatially correlated.
+The numerical method that `NeuralFieldEq.jl` implements was developed within the scope of the master's thesis @Sequeira and arose from the combination of the key idea developed by Hutt and Rougier for delayed neural fields in the stochastic scenario presented by @RiedlerChristian, where the authors proved the convergence of spectral methods applied to stochastic NFEs with additive white noise spatially correlated.
 
-The performance of `Julia` [@Julia] code, when well written, designed and profiled, can be close to `C` or `Fortran` without sacrificing the usual features present in high-level languages. Also, the package makes use of the the multiple dispatch concept, allowing it to be flexible enough to handle NFEs in three different scenarios, 1D or 2D domains, non-delayed or delayed equations and deterministic or stochastic neural fields. These advantages were the trigger needed to develop a new user friendly and fast NFE solver, improving the `Python` solver written by @Simulator
+The performance of `Julia` [@Julia] code, when well written, designed and profiled, can be close to `C` or `Fortran` without sacrificing the usual features present in high-level languages. Also, the package makes use of the the multiple dispatch concept, allowing it to be flexible enough to handle NFEs in three different scenarios, 1D or 2D domains, non-delayed or delayed equations and deterministic or stochastic neural fields. These advantages were the trigger needed to develop a new user friendly and fast NFE solver, improving the `Python` solver written by @Simulator.
+
+These features enabled the numerical results achieved in @SequeiraLima, where stochastic two-dimensional neural fields with low finite axonal speeds were simulated $100$ times to better understand the role of the noise in the neural field.
 
 # Package usage
 
 The solver is divided into three steps:
 - Introduce the parameters and functions using the structures `Input1D` or `Input2D`, depending on the domain dimension;
-  **Remark 1**. Function `I`, depending on the dimensionality of the domain, has to have `x`,`t` or `x`,`y`,`t` as its arguments. Function `K` has `x` or `x`,`y`. And function `S` with `V`.
-  **Remark 2**. Currently, to work with the non-delayed problem, the velocity to insert must satisfy the condition: $v>\frac{L}{\sqrt{2}\Delta t}$ in 2D and $v>\frac{L}{2\Delta t}$ in 1D.
+  - **Remark 1**. Function `I`, depending on the dimensionality of the domain, has to have `x`,`t` or `x`,`y`,`t` as its arguments. Function `K` has `x` or `x`,`y`. And function `S` with `V`.
+  - **Remark 2**. Currently, to work with the non-delayed problem, the velocity to insert must satisfy the condition: $v>\frac{L}{\sqrt{2}\Delta t}$ in 2D and $v>\frac{L}{2\Delta t}$ in 1D.
 - Pre-process the NFE using the function `probNFE`;
+- Solve the equation using the function `solveNFE` at time instants chosen by the user, with or without noise.
 
 Once the solution is computed, we can access it at the previously selected instants. Considering `t=[ti,tj,tk]`, to get the solution at `tj`: `V(tj)` or `V(2)`. In the stochastic case, `Vsto(tj)` stands for the mean solution at `tj`, while for the trajectory `p` is `Vsto(tj,p)`. Also, the user can obtain a specific point in space and time, let `x=[x1,x2,...,xN]` be the discretised space vector, `V(x2,tj)` is the solution's value at `(x2,tj)`.
 
 To illustrate the code usage we will show an example taken from @Kulikov1D.
 ```julia
 using NeuralFieldEq, Plots
-# 1D neural field
-# Define function inputs, I, K and S
 I(x,t) = -2.89967 + 8.0*exp(-x^2/(2.0*3^2)) - 0.5
 K(x) = 2*exp(-0.08*sqrt(x^2))*(0.08*sin(pi*sqrt(x^2)/10)+cos(pi*sqrt(x^2)/10))
 S(V) = V<=0.0 ? 0.0 : 1.0 # Heaviside function
-
-# 1st Define parameters
 a  = 1.0  # Constant decay      
 v  = 20.0 # Finite axonal speed
 V0 = 0.0  # Initial condition
@@ -65,14 +64,11 @@ L  = 100  # Domain length
 N  = 512  # Number of nodes to discretise space
 T  = 20.0 # Time span
 n  = 200  # Number of nodes to discretise time
-nf_1d = Input1D(a,v,V0,L,N,T,n,I,K,S); # Wrap inputs in structure Input1D
 
-# 2nd use the function probNFE to pre-process inputs to solve the NFE
-prob = probNFE(nf_1d)
-
-# 3rd compute the solution using `solveNFE`.
+nf_1d = Input1D(a,v,V0,L,N,T,n,I,K,S); # 1st step
+prob  = probNFE(nf_1d) # 2nd step
 tj = [5.0,10.0,20.0]   # Choose instants where the sol is saved
-V  = solveNFE(prob,tj) # Solve the equation and save at tj
+V  = solveNFE(prob,tj) # 3rd step, compute solution
 ```
 If we want to address the stochastic case we simply need to add extra arguments to `solveNFE`.
 ```julia
@@ -87,37 +83,17 @@ Vsto(20.0)  # Returns the mean stochastic solution at t=20.0
 Vsto(5.0,4) # Returns the 4th trajectory at t=5.0
 
 x = V.x # Returns the spatial vector
-plot(x,[V(1),Vsto(1),Vsto(1,4)],
-     title ="Solutions at t=5",
-     xlabel="x",
-     ylabel="Action potential",
-     label=["Deterministic solution"
-            "Stochastic mean solution"
-            "4th trajectory"])
+plot(x,[V(1),Vsto(1),Vsto(1,4)])
 ```
 ![Caption for example figure.\label{fig:example}](plots1D.png){width=90%}
 
 Or a 2D neural field presented by @HuttRougier:2.
 ```julia
 using NeuralFieldEq, Plots
-
 I(x,y,t) = (5.0/(32.0*pi))*exp(-(x^2+y^2)/32.0)
-function K(x,y)
-    A = 20.0/(10.0*pi)
-    B = 14.0/(18.0*pi)
-    return A*exp(-sqrt(x^2+y^2)) - B*exp(-sqrt(x^2+y^2)/3.0)
-end
-S(V) = V<=0.005 ? 0.0 : 1.0 # H(V-th)
-
-a  = 1.0
-v  = 2.0
-V0 = 0.0
-L  = 20
-N  = 256
-T  = 300.0
-n  = 6000
-
-nfe  = Input2D(a,v,V0,L,N,T,n,I,K,S);
+K(x,y) = (20.0/(10.0*pi))*exp(-sqrt(x^2+y^2)) - (14.0/(18.0*pi))*exp(-sqrt(x^2+y^2)/3.0)
+S(V) = V<=0.005 ? 0.0 : 1.0 # H(V-0.005)
+nfe  = Input2D(1.0,2.0,0.0,20,256,300.0,6000,I,K,S);
 prob = probNFE(nfe)
 tj   = 0:0.2:T;
 V    = solveNFE(prob,tj)
