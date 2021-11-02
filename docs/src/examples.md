@@ -41,9 +41,10 @@ Vsto = solveNFE(prob,[ti,tj,tk],ϵ,np,xi=0.1) # solution saved at ti, tj, and tk
 
 ## Handling solutions
 
-Considering `t=[ti,tj,tk]`, to access the deterministic solution at `tj`, the user must type `V(tj)` or `V(2)` (the index of `tj` is 2).
+Considering `t=[ti,tj,tk]`, to access the deterministic solution at `tj`, the user must type `V(tj)` or `V(2)` (the index of `tj` is 2). In the stochastic case, the procedure is the same. Note that if the user only specifies the time instant, for example `Vsto(tk) # == Vsto(3)`, then it will be returned the **mean solution** at `tk`. Whereas to choose a **trajectory** `p` at time `tk`, the command should be `Vsto(tk,p) # == Vsto(3,p)` for the `p` trajectory at `tk`.
+In the 1D case the output returned is a vector, while in a 2D space is a matrix.
 
-In the stochastic case, the procedure is the same. Note that if the user only specifies the time instant, for example `Vsto(tk) # == Vsto(3)`, then it will be returned the **mean solution** at `tk`. Whereas to choose a **trajectory** `p` at time `tk`, the command should be `Vsto(tk,p) # == Vsto(3,p)` for the `p` trajectory at `tk`.
+The user can also obtain a specific point in space and time. So, considering the discretised space vector `x=[x1,x2,...,xN]`, the solution at point `x2` at time `tj` is accessed by typing `V(x2,tj)` (and in 2D: `V(x2,y1,tj)`). Regarding dealing with the stochastic solution, the same idea explained above still holds, `Vsto(x2,tj)` stands for the value of the **mean solution** at `(x2,tj)`, and `Vsto(x2,tj,p)` stands for the value of trajectory `p` at point `(x2,tj)`.
 
 Moreover, to help plotting the solutions, the output of the function `solveNFE` is endowed with the fields `x`, `y` (in 2D case), and `tsaved` (instants where the solution was saved), corresponding to the discretised spatial and time variables, respectively.
 
@@ -56,10 +57,10 @@ using NeuralFieldEq
 # Define function inputs, I, K and S
 I(x,t) = -2.89967 + 8.0*exp(-x^2/(2.0*3^2)) - 0.5
 K(x) = 2*exp(-0.08*sqrt(x^2))*(0.08*sin(pi*sqrt(x^2)/10)+cos(pi*sqrt(x^2)/10))
-S(V) = V<=0.0 ? 0.0 : 1.0 # Heaviside function 
+S(V) = V<=0.0 ? 0.0 : 1.0 # Heaviside function
 
 # Define parameters
-a  = 1.0  # Constant decay      
+a  = 1.0  # Constant decay
 v  = 5.0  # Finite axonal speed
 V0 = 0.0  # Initial condition
 L  = 100  # Domain length
@@ -217,10 +218,12 @@ plot(x,[V(10.0),sol_exact.(x)],
 ### Two-dimensional NF
 In this example we will adapt a 2D neural field taken from section 8 of [Laing et al. (2002)](http://www.math.pitt.edu/~bard/pubs/multibump.pdf), where the initial condition is not a constant, but a function of ``x`` and ``y``, more specifically in the following form:
 ```math
-\begin{cases}
-    V_0(x,y) = 5\,\, \text{if} -4<x<5.6 \land -12<y<4 \\
-    V_0(x,y) = 0\,\, \text{otherwise.}
-\end
+\begin{equation}
+    \begin{cases}
+        V_0(x,y) = 5\,\, \text{if} -4<x<5.6 \land -12<y<4 \\
+        V_0(x,y) = 0\,\, \text{otherwise.}
+    \end
+\end{equation}
 ```
 ```julia
 using NeuralFieldEq, Plots

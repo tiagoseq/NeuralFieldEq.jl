@@ -47,7 +47,7 @@ The solver is divided into three steps:
 - Pre-process the NFE using the function `probNFE`;
 - Solve the equation using the function `solveNFE` at time instants chosen by the user, with or without noise.
 
-Once the solution is computed we can access its value at the previously selected instants. Considering `t=[ti,tj,tk]`, to access the solution at `tj`: `V(tj)` or `V(2)`. In the stochastic case, to get the mean solution the user must type `Vsto(tj)` whereas a specific trajectory the command should be `Vsto(tj,p)`.
+Once the solution is computed, we can access it at the previously selected instants. Considering `t=[ti,tj,tk]`, to get the solution at `tj`: `V(tj)` or `V(2)`. In the stochastic case, `Vsto(tj)` stands for the mean solution at `tj`, while for the trajectory `p` is `Vsto(tj,p)`. Also, the user can obtain a specific point in space and time, let `x=[x1,x2,...,xN]` be the discretised space vector, `V(x2,tj)` is the solution's value at `(x2,tj)`.
 
 To illustrate the code usage we will discuss an one-dimensional example taken from @Kulikov1D.
 ```julia

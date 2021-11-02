@@ -35,6 +35,9 @@ using Test, NeuralFieldEq
     V01  = solveNFE(prob01,tj)  # Solution obtained with Δx = 0.1
     V005 = solveNFE(prob005,tj) # Solution obtained with Δx = 0.05
 
+    @test isapprox(0.0,V005(201,1),atol=0.1)   # Check if calable function is correct
+    @test isapprox(0.0,V005(0.0,0.2),atol=0.1) # Check if calable function is correct
+
     # e_x is the absolute difference between numerical and exact solutions
     e_x = zeros(3,length(tj))
     for i = 1:length(tj)
@@ -138,6 +141,7 @@ end
     
     # Test calable structures deterministic 2D
     @test maximum(V(40.0)) == maximum(V(201))
+    @test V(0.0,0.0,40.0) == V(129,129,201)
 end
 
 @testset "Delayed SNFE 2D" begin
@@ -169,9 +173,11 @@ end
     # Test calable structures stochastic 2D
     # Mean sample solution
     @test maximum(Vsto(40.0)) == maximum(Vsto(201))
+    @test Vsto(0.0,0.0,40.0) == Vsto(129,129,201)
 
     # Trajectory 4
     @test maximum(Vsto(40.0,4)) == maximum(Vsto(201,4))
+    @test Vsto(0.0,0.0,40.0,4) == Vsto(129,129,201,4)
 end
 
 @testset "Delayed NFE 1D" begin
@@ -202,6 +208,7 @@ end
 
     # Test calable structures deterministic 1D
     @test maximum(V(10.0)) == maximum(V(3))
+    @test V(0.0,10.0) == V(501,3)
 end
  
 @testset "Delayed SNFE 1D" begin
@@ -233,7 +240,9 @@ end
     # Test calable structures stochastic 1D
     # Mean sample solution
     @test maximum(Vsto(10.0)) == maximum(Vsto(3))
+    @test Vsto(0.0,10.0) == Vsto(0.0,10.0)
 
     # Trajectory 4
     @test maximum(Vsto(10.0,4)) == maximum(Vsto(3,4))
+    @test Vsto(0.0,10.0,4) == Vsto(501,3,4)
 end
