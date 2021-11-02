@@ -42,94 +42,11 @@ The performance of `Julia` [@Julia] code, when well written, designed and profil
 
 The solver is divided into three steps:
 - Introduce the parameters and functions using the structures `Input1D` or `Input2D`, depending on the domain dimension;
+  **Remark 1**. Function `I`, depending on the dimensionality of the domain, has to have `x`,`t` or `x`,`y`,`t` as its arguments. Function `K` has `x` or `x`,`y`. And function `S` with `V`.
+  **Remark 2**. Currently, to work with the non-delayed problem, the velocity to insert must satisfy the condition: $v>\frac{L}{\sqrt{2}\Delta t}$ in 2D and $v>\frac{L}{2\Delta t}$ in 1D.
 - Pre-process the NFE using the function `probNFE`;
-- Solve the equation using the function `solveNFE` at time instants chosen by the user, with or without noise.
 
 Once the solution is computed, we can access it at the previously selected instants. Considering `t=[ti,tj,tk]`, to get the solution at `tj`: `V(tj)` or `V(2)`. In the stochastic case, `Vsto(tj)` stands for the mean solution at `tj`, while for the trajectory `p` is `Vsto(tj,p)`. Also, the user can obtain a specific point in space and time, let `x=[x1,x2,...,xN]` be the discretised space vector, `V(x2,tj)` is the solution's value at `(x2,tj)`.
-
-To illustrate the code usage we will show an example taken from @Kulikov1D.
-```julia
-using NeuralFieldEq, Plots
-# 1D neural field
-# Define function inputs, I, K and S
-I(x,t) = -2.89967 + 8.0*exp(-x^2/(2.0*3^2)) - 0.5
-K(x) = 2*exp(-0.08*sqrt(x^2))*(0.08*sin(pi*sqrt(x^2)/10)+cos(pi*sqrt(x^2)/10))
-S(V) = V<=0.0 ? 0.0 : 1.0 # Heaviside function
-
-# 1st Define parameters
-a  = 1.0  # Constant decay      
-v  = 20.0 # Finite axonal speed
-V0 = 0.0  # Initial condition
-L  = 100  # Domain length
-N  = 512  # Number of nodes to discretise space
-T  = 20.0 # Time span
-n  = 200  # Number of nodes to discretise time
-nf_1d = Input1D(a,v,V0,L,N,T,n,I,K,S); # Wrap inputs in structure Input1D
-
-# 2nd use the function probNFE to pre-process inputs to solve the NFE
-prob = probNFE(nf_1d)
-
-# 3rd compute the solution using `solveNFE`.
-tj = [5.0,10.0,20.0]   # Choose instants where the sol is saved
-V  = solveNFE(prob,tj) # Solve the equation and save at tj
-```
-If we want to address the stochastic case we simply need to add extra arguments to `solveNFE`.
-```julia
-# Solve the stochastic equation 100 times
-# Noise magnitude: eps = 0.05. Correlation coefficient: xi = 0.1
-Vsto  = solveNFE(prob,tj,0.05,100)      # xi default value 0.1
-Vsto2 = solveNFE(prob,tj,0.05,100,0.15) # xi = 0.15
-
-# Handling the solutions
-V(10.0)     # Returns the deterministic solution at t=10.0
-Vsto(20.0)  # Returns the mean stochastic solution at t=20.0
-Vsto(5.0,4) # Returns the 4th trajectory at t=5.0
-
-x = V.x # Returns the spatial vector
-plot(x,[V(1),Vsto(1),Vsto(1,4)],
-     title ="Solutions at t=5",
-     xlabel="x",
-     ylabel="Action potential",
-     label=["Deterministic solution"
-            "Stochastic mean solution"
-            "4th trajectory"])
-```
-![Caption for example figure.\label{fig:example}](plots1D.png){width=90%}
-
-Or a 2D neural field presented by @HuttRougier:2.
-```julia
-using NeuralFieldEq, Plots
-
-I(x,y,t) = (5.0/(32.0*pi))*exp(-(x^2+y^2)/32.0)
-function K(x,y)
-    A = 20.0/(10.0*pi)
-    B = 14.0/(18.0*pi)
-    return A*exp(-sqrt(x^2+y^2)) - B*exp(-sqrt(x^2+y^2)/3.0)
-end
-S(V) = V<=0.005 ? 0.0 : 1.0 # H(V-th)
-
-a  = 1.0
-v  = 2.0
-V0 = 0.0
-L  = 20
-N  = 256
-T  = 300.0
-n  = 6000
-
-nfe  = Input2D(a,v,V0,L,N,T,n,I,K,S);
-prob = probNFE(nfe)
-tj   = 0:0.2:T;
-V    = solveNFE(prob,tj)
-
-# Plotting
-minmax_V = zeros(2,length(tj))
-for i = 1:length(tj)
-    minmax_V[1,i] = minimum(V(i))
-    minmax_V[2,i] = maximum(V(i))
-end
-plot(tj,[minmax_V[1,:],minmax_V[2,:]],label=[minimum maximum])
-```
-![Caption for example figure.\label{fig:example}](plots2D.png){width=90%}
 
 # Acknowledgements
 
