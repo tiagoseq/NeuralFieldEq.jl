@@ -98,6 +98,9 @@ V_v3 = solveNFE(prob_v3,tj)
 
 # Plotting
 # Animate the delayed solutions
+
+x = V_v5.x
+y = V_v5.y
 anim = @animate for i = 1:length(tj)
   p1 = plot(x,y,V_v5(i),st=:surface,title="v=5. t=$(tj[i])",color=:balance,zlims=(-2.8,0.95))
   p2 = plot(x,y,V_v3(i),st=:surface,title="v=3. t=$(tj[i])",color=:balance,zlims=(-2.8,0.95))
