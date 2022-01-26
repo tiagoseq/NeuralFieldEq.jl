@@ -37,32 +37,30 @@ whereas $\epsilon$ is the additive noise level and $W$ is a $Q$-Wiener process. 
 
 Studies suggest that Neural Field Equations, can be applied to cognitive robotics. The architecture of autonomous robots, able to interact with other agents in solving a mutual task, is strongly inspired by the processing principles and the neuronal circuitry in the primate brain [@ErlhagenBicho]. Furthermore, recent efforts made by @FerreiraEtAl:RapidLearning show a necessity of efficient numerical methods capable of computing NFE in real time, in order to endow robots with working memory mechanisms.
 
-The common numerical methods for Neural Field Equations use the classical quadrature methods, which have $\mathcal{O}\left(N^{2k}\right)$ complexity, where $k$ is the dimension of the domain, therefore, they do not scale well. In the case of non-delayed equations, one can directly apply Fast Fourier Transforms (FFT), $\mathcal{O}\left(N^k\log^k N\right)$, to compute the numerical solution. However, when $v<\infty$, this is no longer the case. Motivated by this issue, @HuttRougier:2 proposed a novel numerical scheme, by rewriting the integral in a suitable way, the delayed NFE could be numerically approximated using FFT techniques.
+The common numerical methods for Neural Field Equations use the classical quadrature methods, which have $\mathcal{O}\left(N^{2k}\right)$ complexity, where $k$ is the dimension of the domain, therefore, they do not scale well. In the case of non-delayed equations, one can directly apply Fast Fourier Transforms (FFT), $\mathcal{O}\left(N^k\log^k N\right)$, to compute the numerical solution. However, when $v<\infty$, this is no longer the case. Motivated by this, @HuttRougier:2 proposed a novel numerical scheme, where the authors rewrote the integral in a suitable way, such that, the delayed NFE could be numerically approximated using FFT techniques.
 
 `NeuralFieldEq.jl` aims to enhance the method derived in [@HuttRougier:2] and implemented by @Simulator, and adapt to the stochastic scenario presented by @KuehnRiedler. The solver uses Real Fast Fourier Transforms (RFFT) provided by @fftw, reducing the overall computations. And is written in `Julia` [@Julia], which can be performant like low-level languages without sacrificing the usual features of high-level languages. Furthermore, its built to handle NFE in the scenarios aforementioned and their respective combinations, i.e. non-delayed or delayed equations in deterministic or stochastic 1D or 2D neural fields.
 
-@SequeiraLima exploited this versatility and efficiency to study stochastic neural fields where low transmission velocities play an important role, facilitating the exploration of new ideas and experiments, that could not be easily done using quadrature methods.
+@SequeiraLima exploited this versatility and efficiency to study stochastic neural fields where low transmission velocities play an important role, facilitating the exploration of new ideas and experiments.
 
 # Package usage
 
 `NeuralFieldEq.jl` is divided in:
+
 1. Specifying parameters, initial condition and functions by using the structures `Input1D` or `Input2D`:
-    -  The functions are defined as:
-        - External input: `I(x,t)` or `I(x,y,t)`;
-        - Kernel: `K(x)` or `K(x,y)`;
-        - Firing rate: `S(V)`.
+    - The functions are defined as: External input: `I(x,t)` or `I(x,y,t)`; Kernel: `K(x)` or `K(x,y)`; And Firing rate: `S(V)`.
     - The initial condition can be constant or a function. In the latter case, must be defined as `V0(x)` or `V0(x,y)`;
-    - The parameters to specify are: `a`-$\alpha$, `v`-velocity, `L`-domain length, `N`-number of spatial nodes, `T`-time span and `n`-number of time steps;
+    - The parameters are: `a`-$\alpha$, `v`-velocity, `L`-domain length, `N`-number of spatial nodes, `T`-time span and `n`-number of time steps;
     - The order of the inputs in `Input1D`/`Input2D` must be: `nf = Input1D(a,v,V0,L,N,T,n,I,K,S)`;
-    - **Remark:** Currently, to work with the non-delayed problem, the velocity to insert must satisfy the condition: $v>\frac{L}{\sqrt{2}\Delta t}$ in 2D and $v>\frac{L}{2\Delta t}$ in 1D.
+    - **Remark:** Currently, to obtain the non-delayed problem, the velocity must satisfy: $v>\frac{L}{\sqrt{2}\Delta t}$ in 2D and $v>\frac{L}{2\Delta t}$ in 1D.
 
 2. Preparing the NFE through function `probNFE`. Example: `NFE = probNFE(nf)`;
 
 3. Solving the equation using `solveNFE`:
     - Specify an array with the time instants to save the solution. Example: `tj = [t1,t2,t3]`;
     - Compute deterministic solution: `Vdet = solveNFE(NFE,tj)`;
-    - Compute stochastic solution with noise magnitude `eps`, spatial correlation `xi` for `np` trajectories: `Vsto = solveNFE(NFE,tj,eps,xi,np)`;
-    - **Remark:** Currently, the default value for `xi` is $0.1$. `Vsto = solveNFE(NFE,tj,eps,np)` computes the stochastic solution with `xi=0.1`.
+    - Compute stochastic solution with noise magnitude `eps`, spatial correlation `xi`, for `np` paths: `Vsto = solveNFE(NFE,tj,eps,xi,np)`;
+    - **Remark:** Currently, `xi=0.1` is the default value.
 
 4. Handling the solution:
     - The output of `solveNFE` is a callable object:
@@ -89,7 +87,7 @@ x = V.x # Returns the spatial vector
 plot(x,[V(1),Vsto(1),Vsto(1,4)],xlabel="x",ylabel="Action Potential",
      label=["Det Solution" "Sto Mean Solution" "4th path"])
 ```
-![Caption for example figure.\label{fig:example}](plots1D.png){width=85%}
+![Caption for example figure.\label{fig:example}](plots1D.png){width=80%}
 
 Regarding the solver performance, the table below shows the time spent (in seconds) in computing one time step with `N` nodes, for the example listed above and its `2D` version. Both equations were computed with `v=400`.
 \begin{table}[H]
