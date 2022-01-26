@@ -24,7 +24,7 @@ In their works, @WilsonCowan presented a model, later developed by @Amari, named
 \begin{equation}\label{eq:NFE}
   \alpha \frac{\partial V}{\partial t}\left(\mathbf{x},t\right) = I\left(\mathbf{x},t\right) - V\left(\mathbf{x},t\right) + \int_{\Omega} K\left(||\mathbf{x}-\mathbf{y}||_2\right)S\big[V\left(\mathbf{y},t\right)\big]\,\,d^k\mathbf{y},
 \end{equation}
-with $\Omega=[-\frac{L}{2},\frac{L}{2}]^k$ with $k=1,2$ and $||.||_2$ the euclidean norm; $V(\mathbf{x},t)$ is the membrane potential at point $\mathbf{x} \in \Omega$ at time $t$; $I(\mathbf{x},t)$ is the external input applied to the neural field; $K\left(||\mathbf{x}-\mathbf{y}||_2\right)$ is the average strength of connectivity between neurons located at points $\mathbf{x}$ and $\mathbf{y}$ in a homogeneous neural field. When the coupling is positive (resp. negative) the synapses are excitatory (resp. inhibitory); $S(V)$ is the firing rate function, which converts the potential to the respective firing rate result; And $\alpha$ is the constant decay rate. The equation is coupled with the initial condition $V(\mathbf{x},0) = V_0(\mathbf{x})$.
+with $\Omega=[-\frac{L}{2},\frac{L}{2}]^k$ with $k=1,2$; $V(\mathbf{x},t)$ is the membrane potential at point $\mathbf{x} \in \Omega$ at time $t$; $I(\mathbf{x},t)$ is the external input applied to the neural field; $K\left(||\mathbf{x}-\mathbf{y}||_2\right)$ is the average strength of connectivity between neurons located at points $\mathbf{x}$ and $\mathbf{y}$ in a homogeneous neural field. When the coupling is positive (resp. negative) the synapses are excitatory (resp. inhibitory); $S(V)$ is the firing rate function, which converts the potential to the respective firing rate result; And $\alpha$ is the constant decay rate. The equation is coupled with the initial condition $V(\mathbf{x},0) = V_0(\mathbf{x})$.
 
 One of the improvements to consider in \autoref{eq:NFE}, is to take into account the time taken by the stimulus to travel from neurons at $\mathbf{y}$ to the ones at $\mathbf{x}$, leading to the delayed equation,
 \begin{equation}\label{eq:dNFE}
@@ -32,7 +32,7 @@ One of the improvements to consider in \autoref{eq:NFE}, is to take into account
 \end{equation}
 where $d\left(\mathbf{x},\mathbf{y}\right)=\frac{||\mathbf{x}-\mathbf{y}||_2}{v}$ represents the delay, which is assumed to only depend on the distance and on the transmission speed $v$. If $v$ is sufficiently high, $d$ can be neglected and \autoref{eq:dNFE} is reduced to \autoref{eq:NFE}. Moreover, $V$ satisfies the initial condition $V(\mathbf{x},t_0)=V_0(\mathbf{x},t_0),\,\,t_0\in\left[-\tau_{max},\,\,0\right]$, wherein $\tau_{max}$ is the maximum delay correspondent to $\Omega$.
 
-@KuehnRiedler considered the stochasticity inherent to neuronal interactions, and presented a spectral method to stochastic non-delayed NFE with additive white noise and spatial correlation. `NeuralFieldEq.jl` proposes to efficiently solve NFE in the mentioned scenarios, and in stochastic neural fields with finite transmission speeds,
+@KuehnRiedler considered the stochasticity inherent to neuronal interactions, and presented a spectral method to stochastic non-delayed NFE with additive white noise and spatial correlation. So, considering a finite speed in this scenario, the following delayed stochastic NFE can be written,
 \begin{align}\label{eq:dSNFE}
     \alpha\, dV\left(\mathbf{x},t\right) =& \left[I\left(\mathbf{x},t\right) - V\left(\mathbf{x},t\right) + \int_{\Omega}K\left(||\mathbf{x}-\mathbf{y}||_2\right)S\big[V\left(\mathbf{y},t-d\left(\mathbf{x},\mathbf{y}\right)\right)\big]\,\,d^2\mathbf{y}\right]dt + \nonumber \\
     & \epsilon dW\left(\mathbf{x},t\right),
@@ -52,26 +52,27 @@ The common numerical methods for Neural Field Equations use the classical quadra
 # Package usage
 
 `NeuralFieldEq.jl` is divided in:
+
 1. Specifying parameters, initial condition and functions by using the structures `Input1D` or `Input2D`:
-  -  The functions are defined as:
-    - External input: `I(x,t)` or `I(x,y,t)`;
-    - Kernel: `K(x)` or `K(x,y)`;
-    - Firing rate: `S(V)`.
-  - The initial condition can be constant or a function. In the latter case, must be defined as `V0(x)` or `V0(x,y)`;
-  - The parameters to specify are: `a`-$\alpha$, `v`-velocity, `L`-domain length, `N`-number of spatial nodes, `T`-time span and `n`-number of time steps;
-  - The order of the inputs in `Input1D`/`Input2D` must be: `nf = Input1D(a,v,V0,L,N,T,n,I,K,S);`;
-  - **Remark:** Currently, to work with the non-delayed problem, the velocity to insert must satisfy the condition: $v>\frac{L}{\sqrt{2}\Delta t}$ in 2D and $v>\frac{L}{2\Delta t}$ in 1D.
+    -  The functions are defined as:
+        - External input: `I(x,t)` or `I(x,y,t)`;
+        - Kernel: `K(x)` or `K(x,y)`;
+        - Firing rate: `S(V)`.
+    - The initial condition can be constant or a function. In the latter case, must be defined as `V0(x)` or `V0(x,y)`;
+    - The parameters to specify are: `a`-$\alpha$, `v`-velocity, `L`-domain length, `N`-number of spatial nodes, `T`-time span and `n`-number of time steps;
+    - The order of the inputs in `Input1D`/`Input2D` must be: `nf = Input1D(a,v,V0,L,N,T,n,I,K,S)`;
+    - **Remark:** Currently, to work with the non-delayed problem, the velocity to insert must satisfy the condition: $v>\frac{L}{\sqrt{2}\Delta t}$ in 2D and $v>\frac{L}{2\Delta t}$ in 1D.
 
 2. Preparing the NFE through function `probNFE`. Example: `NFE = probNFE(nf)`;
 
 3. Solving the equation using `solveNFE`:
-  - Specify an array with the time instants to save the solution. Example: `tj = [t1,t2,t3]`;
-  - Compute deterministic solution: `Vdet = solveNFE(NFE,tj)`;
-  - Compute stochastic solution with noise magnitude `eps`, spatial correlation `xi` for `np` trajectories: `Vsto = solveNFE(NFE,tj,eps,xi,np)`;
-  - **Remark:** Currently, the default value for `xi` is $0.1$. `Vsto = solveNFE(NFE,tj,eps,np)` computes the stochastic solution with `xi=0.1`.
+    - Specify an array with the time instants to save the solution. Example: `tj = [t1,t2,t3]`;
+    - Compute deterministic solution: `Vdet = solveNFE(NFE,tj)`;
+    - Compute stochastic solution with noise magnitude `eps`, spatial correlation `xi` for `np` trajectories: `Vsto = solveNFE(NFE,tj,eps,xi,np)`;
+    - **Remark:** Currently, the default value for `xi` is $0.1$. `Vsto = solveNFE(NFE,tj,eps,np)` computes the stochastic solution with `xi=0.1`.
 
 4. Handling the solution:
-  - The output of `solveNFE` is a callable object:
+    - The output of `solveNFE` is a callable object:
     - Deterministic solution at a time instant. Example: `Vdet(t1)`;
     - $p^{th}$ trajectory at a time instant. Example: `Vsto(t1,p)`;
     - Mean stochastic solution at a time instant. Example: `Vsto(t1)`;
@@ -82,44 +83,32 @@ The common numerical methods for Neural Field Equations use the classical quadra
 The example shown below is adapted from @Kulikov1D
 ```julia
 using NeuralFieldEq, Plots
-I(x,t) = -2.89967 + 8.0*exp(-x^2/(2.0*3^2)) - 0.5
+I(x,t) = -3.4 + 8.0*exp(-x^2/(2.0*3^2))
 K(x) = 2*exp(-0.08*sqrt(x^2))*(0.08*sin(pi*sqrt(x^2)/10)+cos(pi*sqrt(x^2)/10))
 S(V) = V<=0.0 ? 0.0 : 1.0 # Heaviside function
-a  = 1.0  # Constant decay      
-v  = 20.0 # Finite axonal speed
-V0 = 0.0  # Initial condition
-L  = 100  # Domain length
-N  = 512  # Number of nodes to discretise space
-T  = 20.0 # Time span
-n  = 200  # Number of nodes to discretise time
-
-nf  = Input1D(a,v,V0,L,N,T,n,I,K,S); # 1st step
-NFE = probNFE(nf) # 2nd step
-tj  = [5.0,10.0,20.0]  # Choose instants where the sol is saved
-V   = solveNFE(NFE,tj) # 3rd step, compute deterministic solution
-
-Vsto  = solveNFE(NFE,tj,0.05,100)      # eps = 0.05. xi = 0.1. 100 paths
-Vsto2 = solveNFE(NFE,tj,0.05,100,0.15) # xi = 0.15
-
-# Handling the solutions
-V(10.0)     # Returns the deterministic solution at t=10.0
-Vsto(20.0)  # Returns the mean stochastic solution at t=20.0
-Vsto(5.0,4) # Returns the 4th trajectory at t=5.0
+nf  = Input1D(1.0,20.0,0.0,100,512,20.0,200,I,K,S);
+NFE = probNFE(nf)
+ti  = [5.0,10.0,20.0]  # Choose instants where the sol is saved
+V   = solveNFE(NFE,ti) # Compute deterministic solution
+Vsto = solveNFE(NFE,ti,0.05,100) # eps = 0.05. xi = 0.1. 100 paths
 
 x = V.x # Returns the spatial vector
-plot(x,[V(1),Vsto(1),Vsto(1,4)])
+plot(x,[V(1),Vsto(1),Vsto(1,4)],xlabel="x",ylabel="Action Potential",label=["Det Solution" "Sto Mean Solution" "4th path"])
 ```
 ![Caption for example figure.\label{fig:example}](plots1D.png){width=90%}
 
 Regarding the solver performance, the table below shows the time spent (in seconds) in computing one time step with `N` nodes, for the example listed above and its `2D` version. Both equations were computed with `v=400`.
-|  `N` |  `1D`  |  `2D`  |
-|:----:|:------:|:------:|
-|  128 | 8.6e-6 | 1.4e-3 |
-|  256 | 2.1e-5 | 9.2e-3 |
-|  512 | 3.1e-5 | 3.8e-2 |
-| 1024 | 6.2e-5 | 0.155  |
-| 2048 | 1.3e-4 | 0.621  |
-| 4096 | 2.6e-4 | 2.72   |
+\begin{table}[H]
+\begin{tabular}{c|c|c}
+$N$  & 1D     & 2D     \\ \hline
+128  & 8.6e-6 & 1.4e-3 \\
+256  & 2.1e-5 & 9.2e-3 \\
+512  & 3.1e-5 & 3.8e-2 \\
+1024 & 6.2e-5 & 0.155  \\
+2048 & 1.3e-4 & 0.621  \\
+4096 & 2.6e-4 & 2.72
+\end{tabular}
+\end{table}
 
 # Acknowledgements
 
