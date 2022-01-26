@@ -45,24 +45,22 @@ The common numerical methods for Neural Field Equations use the classical quadra
 
 # Package usage
 
-`NeuralFieldEq.jl` is divided in:
-
-1. Specifying parameters, initial condition and functions by using the structures `Input1D` or `Input2D`:
+1. Specify parameters, initial condition and functions by using `Input1D` or `Input2D`:
     - The functions are defined as: External input: `I(x,t)` or `I(x,y,t)`; Kernel: `K(x)` or `K(x,y)`; And Firing rate: `S(V)`.
     - The initial condition can be constant or a function. In the latter case, must be defined as `V0(x)` or `V0(x,y)`;
     - The parameters are: `a`-$\alpha$, `v`-velocity, `L`-domain length, `N`-number of spatial nodes, `T`-time span and `n`-number of time steps;
-    - The order of the inputs in `Input1D`/`Input2D` must be: `nf = Input1D(a,v,V0,L,N,T,n,I,K,S)`;
+    - The inputs must be wrapped in the following order: `nf = Input1D(a,v,V0,L,N,T,n,I,K,S)`;
     - **Remark:** Currently, to obtain the non-delayed problem, the velocity must satisfy: $v>\frac{L}{\sqrt{2}\Delta t}$ in 2D and $v>\frac{L}{2\Delta t}$ in 1D.
 
-2. Preparing the NFE through function `probNFE`. Example: `NFE = probNFE(nf)`;
+2. Prepare the NFE through function `probNFE`. Example: `NFE = probNFE(nf)`;
 
-3. Solving the equation using `solveNFE`:
-    - Specify an array with the time instants to save the solution. Example: `tj = [t1,t2,t3]`;
+3. Solve the equation using `solveNFE`:
+    - Declare an array with the time instants where the solution is saved;
     - Compute deterministic solution: `Vdet = solveNFE(NFE,tj)`;
     - Compute stochastic solution with noise magnitude `eps`, spatial correlation `xi`, for `np` paths: `Vsto = solveNFE(NFE,tj,eps,xi,np)`;
     - **Remark:** Currently, `xi=0.1` is the default value.
 
-4. Handling the solution:
+4. Handle the solution:
     - The output of `solveNFE` is a callable object:
     - Deterministic solution at a time instant. Example: `Vdet(t1)`;
     - $p^{th}$ trajectory at a time instant. Example: `Vsto(t1,p)`;
@@ -82,12 +80,10 @@ NFE = probNFE(nf)
 ti  = [5.0,10.0,20.0]  # Choose instants where the sol is saved
 V   = solveNFE(NFE,ti) # Compute deterministic solution
 Vsto = solveNFE(NFE,ti,0.05,100) # eps = 0.05. xi = 0.1. 100 paths
-
-x = V.x # Returns the spatial vector
-plot(x,[V(1),Vsto(1),Vsto(1,4)],xlabel="x",ylabel="Action Potential",
+plot(V.x,[V(1),Vsto(1),Vsto(1,4)],xlabel="x",ylabel="Action Potential",
      label=["Det Solution" "Sto Mean Solution" "4th path"])
 ```
-![Caption for example figure.\label{fig:example}](plots1D.png){width=80%}
+![Caption for example figure.\label{fig:example}](plots1D.png){width=75%}
 
 Regarding the solver performance, the table below shows the time spent (in seconds) in computing one time step with `N` nodes, for the example listed above and its `2D` version. Both equations were computed with `v=400`.
 \begin{table}[H]
