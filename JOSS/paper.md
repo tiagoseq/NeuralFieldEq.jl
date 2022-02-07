@@ -24,14 +24,14 @@ In their works, @WilsonCowan presented a model, later developed by @Amari, named
 \begin{equation}\label{eq:dNFE}
   \alpha \frac{\partial V}{\partial t}\left(\mathbf{x},t\right) = I\left(\mathbf{x},t\right) - V\left(\mathbf{x},t\right) + \int_{\Omega} K\left(||\mathbf{x}-\mathbf{y}||_2\right)S\big[V\left(\mathbf{y},t-d\left(\mathbf{x},\mathbf{y}\right)\right)\big]\,\,d^k\mathbf{y},
 \end{equation}
-with $\Omega=[-\frac{L}{2},\frac{L}{2}]^k$ with $k=1,2$; $V(\mathbf{x},t)$ is the membrane potential at point $\mathbf{x} \in \Omega$ at time $t$; $I(\mathbf{x},t)$ is the external input applied to the neural field; $K\left(||\mathbf{x}-\mathbf{y}||_2\right)$ is the average strength of connectivity between neurons located at points $\mathbf{x}$ and $\mathbf{y}$ in an isotropic and homogeneous neural field. When the coupling is positive (resp. negative) the synapses are excitatory (resp. inhibitory); $S(V)$ is the firing rate function, which converts the potential to the respective firing rate result; $\alpha$ is the constant decay rate; $d\left(\mathbf{x},\mathbf{y}\right)=\frac{||\mathbf{x}-\mathbf{y}||_2}{v}$ represents the delay, which is assumed to only depend on the distance, between points $\mathbf{x}$ and $\mathbf{y}$, and on the transmission speed $v$. If $v$ is sufficiently high, $d$ can be neglected and \autoref{eq:dNFE} is reduced to a non-delayed NFE. Moreover, $V$ satisfies the initial condition $V(\mathbf{x},t_0)=V_0(\mathbf{x},t_0),\,\,t_0\in\left[-\tau_{max},\,\,0\right]$, wherein $\tau_{max}$ is the maximum delay correspondent to $\Omega$.
+with $\Omega=[-\frac{L}{2},\frac{L}{2}]^k$ with $k=1,2$; $V(\mathbf{x},t)$ is the membrane potential at point $\mathbf{x} \in \Omega$ at time $t$; $I(\mathbf{x},t)$ is the external input applied to the neural field; $K\left(||\mathbf{x}-\mathbf{y}||_2\right)$ is the average strength of connectivity between neurons located at points $\mathbf{x}$ and $\mathbf{y}$ in an isotropic and homogeneous neural field. When the coupling is positive (resp. negative) the synapses are excitatory (resp. inhibitory); $S(V)$ is the firing rate function, which converts the potential to the respective firing rate result; $\alpha$ is the constant decay rate; $d\left(\mathbf{x},\mathbf{y}\right)=\frac{||\mathbf{x}-\mathbf{y}||_2}{v}$ represents the delay, which is assumed to only depend on the distance, between points $\mathbf{x}$ and $\mathbf{y}$, and on the transmission speed $v$. If $v$ is sufficiently high, $d$ can be neglected and \autoref{eq:dNFE} is reduced to a non-delayed NFE, $d=0$. Moreover, $V$ satisfies the initial condition $V(\mathbf{x},t_0)=V_0(\mathbf{x},t_0),\,\,t_0\in\left[-\tau_{max},\,\,0\right]$, wherein $\tau_{max}$ is the maximum delay correspondent to $\Omega$.
 
 @KuehnRiedler considered the stochasticity inherent to neuronal interactions, and presented a spectral method to stochastic non-delayed NFE with additive white noise and spatial correlation. So, considering a finite speed in this scenario, the following delayed stochastic NFE can be written,
 \begin{align}\label{eq:dSNFE}
     \alpha\, dV\left(\mathbf{x},t\right) =& \left[I\left(\mathbf{x},t\right) - V\left(\mathbf{x},t\right) + \int_{\Omega}K\left(||\mathbf{x}-\mathbf{y}||_2\right)S\big[V\left(\mathbf{y},t-d\left(\mathbf{x},\mathbf{y}\right)\right)\big]\,\,d^2\mathbf{y}\right]dt + \nonumber \\
     & \epsilon dW\left(\mathbf{x},t\right),
 \end{align}
-whereas $\epsilon$ is the additive noise level and $W$ is a $Q$-Wiener process. With $V(\mathbf{x},t_0)=V_0(\mathbf{x},t_0),\,\,t_0\in\left[-\tau_{max},\,\,0\right]$ and $V_0$ is a given stochastic process.
+whereas $\epsilon$ is the additive noise level and $W$ is a $Q$-Wiener process. With $V(\mathbf{x},t_0)=V_0(\mathbf{x},t_0),\,\,t_0\in\left[-\tau_{max},\,\,0\right]$.
 
 # Statement of need
 
@@ -46,26 +46,24 @@ The common numerical methods for Neural Field Equations use the classical quadra
 # Package usage
 
 1. Specify parameters, initial condition and functions by using `Input1D` or `Input2D`:
-    - The functions are defined as: External input: `I(x,t)` or `I(x,y,t)`; Kernel: `K(x)` or `K(x,y)`; And Firing rate: `S(V)`.
+    - The functions are defined as External input: `I(x,t)` or `I(x,y,t)`; Kernel: `K(x)` or `K(x,y)`; And Firing rate: `S(V)`.
     - The initial condition can be constant or a function. In the latter case, must be defined as `V0(x)` or `V0(x,y)`;
-    - The parameters are: `a`-$\alpha$, `v`-velocity, `L`-domain length, `N`-number of spatial nodes, `T`-time span and `n`-number of time steps;
+    - The parameters: `a`-$\alpha$, `v`-velocity, `L`-domain length, `N`-number of spatial nodes, `T`-time span and `n`-number of time steps;
     - The inputs must be wrapped in the following order: `nf = Input1D(a,v,V0,L,N,T,n,I,K,S)`;
     - **Remark:** Currently, to obtain the non-delayed problem, the velocity must satisfy: $v>\frac{L}{\sqrt{2}\Delta t}$ in 2D and $v>\frac{L}{2\Delta t}$ in 1D.
 
 2. Prepare the NFE through function `probNFE`. Example: `NFE = probNFE(nf)`;
 
 3. Solve the equation using `solveNFE`:
-    - Declare an array with the time instants where the solution is saved;
-    - Compute deterministic solution: `Vdet = solveNFE(NFE,tj)`;
-    - Compute stochastic solution with noise magnitude `eps`, spatial correlation `xi`, for `np` paths: `Vsto = solveNFE(NFE,tj,eps,xi,np)`;
+    - Declare an array, `t`, with the time instants where the solution is saved;
+    - Compute deterministic equation: `Vdet = solveNFE(NFE,t)`;
+    - Compute stochastic equation with noise magnitude `eps`, spatial correlation `xi`, for `np` paths: `Vsto = solveNFE(NFE,t,eps,xi,np)`;
     - **Remark:** Currently, `xi=0.1` is the default value.
 
-4. Handle the solution:
-    - The output of `solveNFE` is a callable object:
-    - Deterministic solution at a time instant. Example: `Vdet(t1)`;
-    - $p^{th}$ trajectory at a time instant. Example: `Vsto(t1,p)`;
-    - Mean stochastic solution at a time instant. Example: `Vsto(t1)`;
-    - Return spatial vector: `Vdet.x`.
+4. Handle the output of `solveNFE` (callable object):
+    - Call deterministic solution at `ti` $\in$ `t`: `Vdet(ti)`;
+    - Call $p^{th}$ trajectory at `ti`: `Vsto(ti,p)`;
+    - Call mean stochastic solution at `ti`. Example: `Vsto(ti)`.
 
 # Example and code performance
 
@@ -77,9 +75,9 @@ K(x) = 2*exp(-0.08*sqrt(x^2))*(0.08*sin(pi*sqrt(x^2)/10)+cos(pi*sqrt(x^2)/10))
 S(V) = V<=0.0 ? 0.0 : 1.0 # Heaviside function
 nf  = Input1D(1.0,20.0,0.0,100,512,20.0,200,I,K,S);
 NFE = probNFE(nf)
-ti  = [5.0,10.0,20.0]  # Choose instants where the sol is saved
-V   = solveNFE(NFE,ti) # Compute deterministic solution
-Vsto = solveNFE(NFE,ti,0.05,100) # eps = 0.05. xi = 0.1. 100 paths
+t    = [5.0,10.0,20.0] # Choose instants where sol is saved
+V    = solveNFE(NFE,t) # Compute deterministic solution
+Vsto = solveNFE(NFE,t,0.05,100) # eps = 0.05. xi = 0.1. 100 paths
 plot(V.x,[V(1),Vsto(1),Vsto(1,4)],xlabel="x",ylabel="Action Potential",
      label=["Det Solution" "Sto Mean Solution" "4th path"])
 ```
