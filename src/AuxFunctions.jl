@@ -5,18 +5,25 @@ using FFTW: fftshift
 export peel, init!
 
 function disc(centre::T,N::T,radius::P) where {T<:Signed,P<:AbstractFloat} # 1D method
-    # This function constructs a disc in a vector:
-    # 0 0 1 0 0 -> 0 1 0 1 0 - > 1 0 0 0 1
+    @doc raw """
+        disc(centre,N,radius)
+
+    This is an auxiliary function that constructs a compact disc in vectors and matrices of size N and N x N, respectively.
+    
+    ### Examples:
+    - Vector with centre=3, size: N=5, radius=0 -> 0 0 1 0 0
+    - Vector with centre=3, size: N=5, radius=1 -> 0 1 1 1 0
+    - Vector with centre=3, size: N=5, radius=2 -> 1 1 1 1 1
+    - Matrix with centre=([2,2]), size: N=3, radius=1 -> 0 1 0 
+                                                         1 1 1 
+                                                         0 1 0 
+    """
     D = Vector{P}(undef,N)
     @inbounds D = [sqrt((i-centre)^2)<=radius ? D[i] = 1.0 : D[i] = 0.0 for i = 1:N]
     return D
 end
 
 function disc(centre::Vector{T},N::T,radius::P) where {T<:Signed,P<:AbstractFloat} # 2D method
-    # This function constructs a disc in a matrix, ex:
-    # 0 0 1 0 0
-    # 0 1 0 1 0
-    # 0 0 1 0 0
     D = Matrix{P}(undef,N,N)
     @inbounds D = [sqrt((i-centre[1])^2+(j-centre[2])^2)<=radius ? D[i,j] = 1.0 : D[i,j] = 0.0 for i = 1:N, j = 1:N]
     return D
@@ -24,6 +31,13 @@ end
 
 
 function peel(P,A::Vector{T},Ω) where {T<:AbstractFloat} # 1D method
+    @doc raw """
+        peel(P,A,Ω)
+
+    Auxiliary function that is responsible to construct the matrix k_delay (in Fourier domain).
+    Based on function disc computes the fft for every concentric ring present in Ω.
+    The fft of the delay ring `j` is stored at the jth row (in 1D) and jth+N rows (in 2D).
+    """
     # This function constructs k_delay in 1D
     # Perform the Fourier Transform of the respective delay ring
 
@@ -68,6 +82,11 @@ function peel(P,A::Matrix{T},Ω) where {T<:AbstractFloat} # 2D method
 end
 
 # Method init for 1D with V0 being a constant
+@doc raw """
+    init!(v,sv,V0arr,P,S,V0,Ω)
+
+This auxiliary function initialises in Fourier domain the initial condition `V0` and the image of `S(V0)`
+"""
 function init!(v::Vector{<:Complex{<:T}},sv::Vector{<:Complex{<:T}},V0arr::Vector{T},P,S,V0::Real,Ω) where {T<:AbstractFloat}
     svu   = Vector{Complex{T}}(undef,Ω.N÷2+1)
     V0arr.= fill(V0,Ω.N) # Initial condition V(x,y,t=0)
