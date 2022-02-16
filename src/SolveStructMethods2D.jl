@@ -2,11 +2,6 @@
 
 # Return V(x,y,ti)
 function (a::SolveOutDet2D)(ti::AbstractFloat)
-    @doc raw"""
-    a(ti)
-
-    This functor returns the 2D deterministic solution at instant `ti`
-    """
     t = findlast(x->x==ti,a.tsaved)
     return a.V[(t-1)*a.N+1:a.N*t,:]
 end
@@ -14,11 +9,6 @@ end
 
 # Return V(xj,yk,ti)
 function (a::SolveOutDet2D)(xj::AbstractFloat,yk::AbstractFloat,ti::AbstractFloat)
-    @doc raw"""
-        a(xj,yk,ti)
-
-    This functor returns the 2D deterministic solution at point (`xj`,`yk`) and instant `ti`
-    """
     t  = findlast(i->i==ti,a.tsaved)
     x  = findlast(j->j==xj,a.x)
     y  = findlast(k->k==yk,a.y)
@@ -36,11 +26,6 @@ end
 
 # Return V(x,y,ti,p)
 function (a::SolveOutSto2D)(ti::AbstractFloat,p::Int)
-    @doc raw"""
-        a(ti,p)
-
-    This functor returns the path `p` at instant `ti` (2D domain)
-    """
     t = findlast(i->i==ti,a.tsaved)
     return a.V[(t-1)*a.N+1:a.N*t,:,p]
 end
@@ -48,11 +33,6 @@ end
 
 # Return Vmean(x,y,ti)
 function (b::SolveOutSto2D)(ti::AbstractFloat)
-    @doc raw"""
-        b(ti)
-
-    This functor returns the 2D mean stochastic solution at instant `ti`
-    """
     t = findlast(i->i==ti,b.tsaved)
     return b.meanV[(t-1)*b.N+1:b.N*t,:]
 end
@@ -60,11 +40,6 @@ end
 
 # Return V(xj,yk,ti,p)
 function (a::SolveOutSto2D)(xj::AbstractFloat,yk::AbstractFloat,ti::AbstractFloat,p::Int)
-    @doc raw"""
-        a(xj,yk,ti,p)
-
-    This functor returns the path `p` at point (`xj`,`yk`) and instant `ti` (2D domain)
-    """
     t  = findlast(i->i==ti,a.tsaved)
     x  = findlast(j->j==xj,a.x)
     y  = findlast(k->k==yk,a.y)
@@ -79,11 +54,6 @@ end
 
 # Return Vmean(xj,yk,ti)
 function (b::SolveOutSto2D)(xj::AbstractFloat,yk::AbstractFloat,ti::AbstractFloat)
-    @doc raw"""
-        b(xj,yk,ti)
-
-    This functor returns the 2D mean stochastic solution at point (`xj`,`yk`) and instant `ti`
-    """
     t  = findlast(i->i==ti,b.tsaved)
     x  = findlast(j->j==xj,b.x)
     y  = findlast(k->k==yk,b.y)
