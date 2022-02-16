@@ -82,12 +82,12 @@ function peel(P,A::Matrix{T},Ω) where {T<:AbstractFloat} # 2D method
 end
 
 # Method init for 1D with V0 being a constant
-@doc raw """
-    init!(v,sv,V0arr,P,S,V0,Ω)
-
-This auxiliary function initialises in Fourier domain the initial condition `V0` and the image of `S(V0)`
-"""
 function init!(v::Vector{<:Complex{<:T}},sv::Vector{<:Complex{<:T}},V0arr::Vector{T},P,S,V0::Real,Ω) where {T<:AbstractFloat}
+    @doc raw """
+        init!(v,sv,V0arr,P,S,V0,Ω)
+
+    This auxiliary function initialises in Fourier domain the initial condition `V0` and the image of `S(V0)`
+    """
     svu   = Vector{Complex{T}}(undef,Ω.N÷2+1)
     V0arr.= fill(V0,Ω.N) # Initial condition V(x,y,t=0)
     mul!(v,P,V0arr)      # Initial condition in the Fourier domain
