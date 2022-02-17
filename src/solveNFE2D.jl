@@ -23,6 +23,7 @@ function solveNFE(prob::ProbOutput2D,saveat)
     a   = similar(svu) # Fourier coefficients of the integral operator A(X,t)
     j   = 1 # Set index for solution saved at saveat instants
 
+    prog = Progress(length(t), desc="Computing: ", color=:blue) # Define progress bar
     @inbounds for i = 1:length(t) # Time loop
         ti = t[i]
         # Store solution V in saveat instants
@@ -50,6 +51,7 @@ function solveNFE(prob::ProbOutput2D,saveat)
         sv[hN+1:end,:].= @view sv[1:hN*(rings-1),:]
         mul!(svu,P,prob.S.(V)) # Apply the Real Fourier Transform to V
         sv[1:hN,:].= svu # Update sv first delay ring
+        next!(prog)
     end #end time loop
 
     # Build our solution structure output
@@ -91,6 +93,7 @@ function solveNFE(prob::ProbOutput2D,saveat,ϵ,np,ξ=0.1)
     # Shift λ due to the also shifted output of fft
     c = (N^2)*sqrt(dt)*ϵ*fftshift(λ) # ϵ is the level of additive noise
 
+    prog = Progress(np, desc="Paths computed: ", color=:blue) # Define progress bar
     # Trajectories loop
     @inbounds for p = 1:np
         copy!(V,prob.V0) # Initial condition V(X,0) = V0 (Natural domain)
@@ -129,6 +132,7 @@ function solveNFE(prob::ProbOutput2D,saveat,ϵ,np,ξ=0.1)
             mul!(svu,P,prob.S.(V)) # Apply the Real Fourier Transform to V
             sv[1:hN,:].= svu # Update sv first delay ring
         end #end time loop
+        next!(prog) # upd status bar next trajectory
     end #end trajectories loop
 
     # Compute the mean solution across all trajectories

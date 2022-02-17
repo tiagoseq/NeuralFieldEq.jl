@@ -5,6 +5,7 @@ import Base: show
 using FFTW
 using Distributions: mean
 using LinearAlgebra: mul!, ldiv!
+using ProgressMeter: Progress, next!
 
 # Module containing auxiliary functions
 include("AuxFunctions.jl")
