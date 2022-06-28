@@ -35,11 +35,11 @@ whereas $\epsilon$ is the additive noise level and $W$ is a $Q$-Wiener process. 
 
 # Statement of need
 
-Studies suggest that Neural Field Equations, can be applied to cognitive robotics. The architecture of autonomous robots, able to interact with other agents in solving a mutual task, is strongly inspired by the processing principles and the neuronal circuitry in the primate brain [@ErlhagenBicho]. Furthermore, recent efforts made by @FerreiraEtAl:RapidLearning show a necessity of efficient numerical methods capable of computing NFE in real time, in order to endow robots with working memory mechanisms.
+Studies suggest that Neural Field Equations (NFE) can be applied to cognitive robotics. The architecture of autonomous robots, able to interact with other agents in solving a mutual task, is strongly inspired by the processing principles and the neuronal circuitry in the primate brain [@ErlhagenBicho]. Furthermore, recent efforts made by @FerreiraEtAl:RapidLearning show the necessity of an efficient numerical method to computing NFE in real time, in order to endow robots with working memory mechanisms.
 
-The common numerical methods for Neural Field Equations use the classical quadrature methods, which have $\mathcal{O}\left(N^{2k}\right)$ complexity, where $k$ is the dimension of the domain, therefore, they do not scale well. In the case of non-delayed equations, one can directly apply Fast Fourier Transforms (FFT), $\mathcal{O}\left(N^k\log^k N\right)$, to compute the numerical solution. However, when $v<\infty$, this is no longer the case. Motivated by this, @HuttRougier:2 proposed a novel numerical scheme, where the authors rewrote the integral in a suitable way, such that, the delayed NFE could be numerically approximated using FFT techniques.
+The common numerical method for Neural Field Equations use classical quadrature, which has poorly scaling $\mathcal{O}\left(N^{2k}\right)$ complexity, where $k$ is the dimension of the domain. In the case of non-delayed equations, one can directly apply Fast Fourier Transforms (FFT), $\mathcal{O}\left(N^k\log^k N\right)$, to compute the numerical solution. However, when $v<\infty$, this is no longer the case. Motivated by this, @HuttRougier:2 proposed a novel numerical scheme, where the authors rewrote the integral so that the delayed NFE could be numerically approximated using FFT techniques.
 
-`NeuralFieldEq.jl` aims to enhance the method derived in [@HuttRougier:2] and implemented by @Simulator, and adapt to the stochastic scenario presented by @KuehnRiedler. The solver uses Real Fast Fourier Transforms (RFFT) provided by @fftw, reducing the overall computations. And is written in `Julia` [@Julia], which can be performant like low-level languages without sacrificing the usual features of high-level languages. Furthermore, its built to handle NFE in the scenarios aforementioned and their respective combinations, i.e. non-delayed or delayed equations in deterministic or stochastic 1D or 2D neural fields.
+`NeuralFieldEq.jl` aims to enhance the method derived in [@HuttRougier:2] and implemented by @Simulator, and adapt to the stochastic scenario presented by @KuehnRiedler. The solver uses Real Fast Fourier Transforms (RFFT) provided by @fftw, reducing the overall computation. The software package is written in the `Julia` [@Julia] programming language, which can be performant like low-level languages without sacrificing the usual features of high-level languages. Furthermore, its built to handle NFE in the scenarios aforementioned and their respective combinations, i.e. non-delayed or delayed equations in deterministic or stochastic 1D or 2D neural fields.
 
 @SequeiraLima exploited this versatility and efficiency to study stochastic neural fields where low transmission velocities play an important role, facilitating the exploration of new ideas and experiments.
 
@@ -98,6 +98,6 @@ $N$  & 1D     & 2D     \\ \hline
 
 # Acknowledgements
 
-I want to thank my advisor, Pedro Lima, that kindly reviewed this article.
+I want to thank my advisor, Pedro Lima, who kindly reviewed this article.
 
 # References
