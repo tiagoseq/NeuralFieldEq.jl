@@ -4,6 +4,11 @@
 |:----:|:----------------------------------------------------------------------------------------------------------------------------------------------------------:|
 | [![docs](https://img.shields.io/badge/docs-stable-blue.svg)](https://tiagoseq.github.io/NFEdocs.jl/) | ![Build](https://github.com/tiagoseq/NeuralFieldEq.jl/actions/workflows/ci.yml/badge.svg) [![codecov](https://codecov.io/gh/tiagoseq/NeuralFieldEq.jl/branch/master/graph/badge.svg?token=UkWjnCoLUI)](https://codecov.io/gh/tiagoseq/NeuralFieldEq.jl) |
 
+### Publications
+- [Numerical simulations of one- and two-dimensional stochastic neural field equations with delay](https://link.springer.com/article/10.1007/s10827-022-00816-w)
+- [![DOI](https://joss.theoj.org/papers/10.21105/joss.03974/status.svg)](https://doi.org/10.21105/joss.03974)
+- [Master's thesis](https://fenix.tecnico.ulisboa.pt/downloadFile/1126295043839328/Tese_finalversion_TiagoSequeira.pdf)
+
 ## About
 
 The numerical method implemented in `NeuralFieldEq.jl` was developed within the scope of the thesis [Sequeira 2021](https://fenix.tecnico.ulisboa.pt/cursos/mma/dissertacao/1691203502344856) under the supervision of professor Pedro M. Lima. The method combined the novel numerical scheme published originally by [Hutt & Rougier 2013](https://hal.inria.fr/hal-00872132/document) for delayed NFE in the context of the stochastic scenario presented by [Kuehn & Riedler 2014](https://link.springer.com/content/pdf/10.1186/2190-8567-4-1.pdf) where the convergence of spectral methods was proved in stochastic neural fields with additive white noise and spatial correlation.
