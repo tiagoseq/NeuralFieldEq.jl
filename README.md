@@ -111,6 +111,16 @@ The software in this repository was developed as part of academic research carri
 
 Any issues that you find, please, report [here](https://github.com/tiagoseq/NeuralFieldEq.jl/issues).
 
+## List of features to implement
+
+- [ ] Define a new FFT implementation in this module (as indicated in the readme of [AbstractFFTs.jl](https://github.com/JuliaMath/AbstractFFTs.jl))
+- [ ] Refactor the code in order to handle the 1D and 2D cases generically (so, no longer the need to have 1D and 2D versions of the same function)
+- [ ] Write the non-delayed case $v=\infty$ of the solver
+- [ ] Add the possibility of handling single-precision floats (Float32). Currently it only supports double-precision floats
+- [ ] Add new numerical schemes with higher order of convergence in time (such as the Milstein method)
+- [ ] Add new numerical methods with higher order of convergence in space (in this case the advantage of the speed of FFTs will be lost)
+- [ ] Better solution handling
+
 ### Contributors
 
 - [Tiago Sequeira](https://github.com/tiagoseq)
